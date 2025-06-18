@@ -16,6 +16,8 @@ OBJ_FILES   := $(SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
 OBJ_FILES   += $(DATA_FILES:$(DATA_DIR)/%.c=$(BUILD_DIR)/%.o)
 DEPS        := $(OBJ_FILES:.o=.d)
 
+VPATH       := $(SRC_DIR) $(DATA_DIR)
+
 ARCH        := -mthumb -mthumb-interwork
 SPECS       := -specs=gba.specs
 
@@ -41,12 +43,7 @@ $(TARGET).elf: $(OBJ_FILES) $(LIBS_TARGET)
 $(LIBS_TARGET):
 	$(MAKE) -C $(@D)
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	$(DIR_DUP)
-	$(info Compiling $< to $@...)
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
-
-$(BUILD_DIR)/%.o: $(DATA_DIR)/%.c
+$(BUILD_DIR)/%.o: %.c
 	$(DIR_DUP)
 	$(info Compiling $< to $@...)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
@@ -58,5 +55,9 @@ clean:
 	for f in $(dir $(LIBS_TARGET)); do $(MAKE) -C $$f clean; done
 	rm -rf $(BUILD_DIR) $(TARGET).elf $(TARGET).gba
 
-.PHONY: clean
+re:
+	$(MAKE) clean
+	$(MAKE) all
+
+.PHONY: clean re
 .SILENT:
