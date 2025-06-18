@@ -1,42 +1,44 @@
 export SHELL := /usr/bin/env bash
 
-TARGET      := SonicGBA
+GAME_TITLE   := Sonic GBA
 
-LIBS        := gba
-LIBS_TARGET := gba/libgba.a
+TARGET       := SonicGBA
 
-INCS        := include gba/include .
+LIBS         := gba
+LIBS_TARGET  := gba/libgba.a
 
-SRC_DIR     := src
-SRC_FILES   := $(wildcard $(SRC_DIR)/*.c)
+INCS         := include gba/include .
 
-DATA_DIR    := data
-DATA_FILES  := $(shell find $(DATA_DIR) -name '*.c')
+SRC_DIR      := src
+SRC_FILES    := $(wildcard $(SRC_DIR)/*.c)
 
-BUILD_DIR   := build
-OBJ_FILES   := $(SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
-OBJ_FILES   += $(DATA_FILES:$(DATA_DIR)/%.c=$(BUILD_DIR)/%.o)
-DEPS        := $(OBJ_FILES:.o=.d)
+DATA_DIR     := data
+DATA_FILES   := $(shell find $(DATA_DIR) -name '*.c')
 
-VPATH       := $(SRC_DIR) $(DATA_DIR)
+BUILD_DIR    := build
+OBJ_FILES    := $(SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+OBJ_FILES    += $(DATA_FILES:$(DATA_DIR)/%.c=$(BUILD_DIR)/%.o)
+DEPS         := $(OBJ_FILES:.o=.d)
 
-ARCH        := -mthumb -mthumb-interwork
-SPECS       := -specs=gba.specs
+VPATH        := $(SRC_DIR) $(DATA_DIR)
 
-CC          := arm-none-eabi-gcc
-CFLAGS      := $(ARCH) -Wall -O2 -fno-strict-aliasing
-CPPFLAGS    := $(addprefix -I,$(INCS)) -MMD -MP
-LDFLAGS     := $(addprefix -L,$(dir $(LIBS_TARGET))) $(ARCH) $(SPECS)
-LDLIBS      := $(addprefix -l,$(LIBS))
+ARCH         := -mthumb -mthumb-interwork
+SPECS        := -specs=gba.specs
 
-MAKEFLAGS += --silent --no-print-directory
-DIR_DUP = mkdir -p $(@D)
+CC           := arm-none-eabi-gcc
+CFLAGS       := $(ARCH) -Wall -O2 -fno-strict-aliasing
+CPPFLAGS     := $(addprefix -I,$(INCS)) -MMD -MP
+LDFLAGS      := $(addprefix -L,$(dir $(LIBS_TARGET))) $(ARCH) $(SPECS)
+LDLIBS       := $(addprefix -l,$(LIBS))
+
+MAKEFLAGS    += --silent --no-print-directory
+DIR_DUP      = mkdir -p $(@D)
 
 all: $(TARGET).gba
 
 $(TARGET).gba: $(TARGET).elf
 	arm-none-eabi-objcopy -O binary $< $@
-	$(info $@ created!)
+	gbafix $@ -t"$(GAME_TITLE)"
 
 $(TARGET).elf: $(OBJ_FILES) $(LIBS_TARGET)
 	$(info Linking...)
