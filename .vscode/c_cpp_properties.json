@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "ARM7tdmi",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/include**",
+                "${workspaceFolder}/gba/include**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.22621.0",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-arm",
+            "compilerPath": "C:/msys64/opt/devkitPro/devkitARM/bin/arm-none-eabi-gcc.exe",
+            "compilerArgs": [
+                "-mthumb",
+                "-Wall",
+                "-O2"
+            ]
+        }
+    ],
+    "version": 4
+}
