@@ -1,3 +1,5 @@
+export SHELL := /usr/bin/env bash
+
 TARGET      := SonicGBA
 
 LIBS        := gba
