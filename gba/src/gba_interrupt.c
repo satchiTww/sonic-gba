@@ -2,7 +2,7 @@
 
 static void (*irq_callbacks[14])(void) = { 0 };
 
-void irq_register_handler(u16 irq_mask, void (*callback)(void))
+void irq_reg_handler(u16 irq_mask, void (*callback)(void))
 {
     for (int i = 0; i < 14; i++) {
         if (irq_mask == (1 << i)) {
@@ -22,8 +22,8 @@ void irq_remove_handler(u16 irq_mask)
     }
 }
 
-__attribute__((target("arm")))
-__attribute__((section(".iwram")))
+TARG_ARM
+SEC_IWRAM
 void irq_master_handler(void)
 {
     //Read pending flags
@@ -53,7 +53,7 @@ void irq_master_handler(void)
     }
 }
 
-void irq_initialize(void)
+void irq_init(void)
 {
     REG_IME = 0;
     REG_IE = 0;

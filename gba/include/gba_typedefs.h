@@ -3,7 +3,9 @@
 
 #define INLINE static inline
 
-#define ALIGN4 __attribute__((aligned(4)))
+#define ALIGN4    __attribute__((aligned(4)))
+#define TARG_ARM  __attribute__((target("arm")))
+#define SEC_IWRAM __attribute__((section(".iwram")))
 
 //unsigned types
 typedef unsigned char u8;
