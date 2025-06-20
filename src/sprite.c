@@ -1,5 +1,4 @@
 #include "sprite.h"
-#include "gba_video.h"
 
 void load_sprite(Sprite *sprite)
 {
