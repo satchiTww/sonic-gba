@@ -1,20 +1,29 @@
-#include "scene.h"
 #include "gba.h"
+#include "scene.h"
 #include "stage.h"
+#include "camera.h"
+#include "player.h"
+#include "sprite_teto.h"
 #include "data/backgrounds/TZ_bg0.h"
 #include "data/tilemaps/TestZone.h"
 
 static Stage testZone=
 {
-    .tilemap = TestZoneMap,
+    .tilemap_data = TestZoneMap,
     .mapWidth = 1008,
     .mapHeight = 224
 };
 
+static Camera *camera;
+
+static Player *player;
+
 void move_bg0();
+void move_bg1();
 
 static void test_room_init()
 {
+    //Display setup
     REG_DISPCNT =
         DISPCNT_MODE_0 |
         DISPCNT_BG0    |
@@ -43,19 +52,28 @@ static void test_room_init()
     ;
     load_palette(TestZonePal, TestZonePalLen, 2);
     load_tileset(TestZoneTiles, TestZoneTilesLen, 0, 2);
+
+    /*oam setup*/
+    load_sprite(&sprTeto);
+    
+    camera = camera_create(camera, 0, 64);
+    player = player_create(player, FIXED8(48, 0), FIXED8(128, 0), AIRBORNE);
 }
 
 static void test_room_update()
 {
-    move_bg0();
+    player_routine(player, &testZone, camera);
 
-    //scroll bg1 (tilemap)
-    load_scroller_tilemap(testZone.tilemap, 29, testZone.mapWidth, 0, 8);
+    camera_clamp(camera, 0, testZone.mapWidth - SCREEN_WIDTH, 0, testZone.mapHeight - SCREEN_HEIGHT);
+    
+    move_bg0();
+    move_bg1();
 }
 
 static void test_room_leave()
 {
-
+    camera_destroy(camera);
+    player_destroy(player);
 }
 
 Scene testRoom=
@@ -65,6 +83,7 @@ Scene testRoom=
     .leave = test_room_leave
 };
 
+//move background 0
 void move_bg0()
 {
     static fixed8 bg0HScroll = 0;
@@ -75,4 +94,23 @@ void move_bg0()
     bg0VScroll += FIXED8(0, 32);
     REG_BG0HOFS = fixed8_to_int(bg0HScroll);
     REG_BG0VOFS = fixed8_to_int(bg0VScroll);
+}
+
+void move_bg1()
+{
+    static fixed8 bg1HScroll = 0;
+    static fixed8 bg1VScroll = 0;
+
+    bg1HScroll = camera->xPos % TILE_SIZE;
+    bg1VScroll = camera->yPos % TILE_SIZE;
+    REG_BG1HOFS = bg1HScroll;
+    REG_BG1VOFS = bg1VScroll;
+
+    load_scroller_tilemap(
+        testZone.tilemap_data,
+        29,
+        testZone.mapWidth,
+        camera->xPos / TILE_SIZE,
+        camera->yPos / TILE_SIZE
+    );
 }
