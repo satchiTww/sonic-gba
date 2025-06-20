@@ -1,8 +1,6 @@
 #ifndef GBA_VIDEO_H
 #define GBA_VIDEO_H
 
-#define a 10
-
 #include "gba_typedefs.h"
 #include "gba_memmap.h"
 
@@ -115,7 +113,7 @@ INLINE u16* screen_block(u32 block)
 
 void load_tileset(const u16* tileset, int tileset_len, int ch_block, int index);
 void load_tilemap(const u16* tilemap, int tilemap_len, int scrn_block);
-void draw_tilemap(Tilemap tilemap, int stage_width, int x_grid, int y_grid);
+void load_scroller_tilemap(const u16* tilemap, int scrn_block, int stage_width, int x_grid, int y_grid);
 
 /*===============OAM (Sprites)================*/
 typedef struct {

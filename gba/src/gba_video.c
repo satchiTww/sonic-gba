@@ -29,10 +29,10 @@ void load_tilemap(const u16* tilemap, int tilemap_len, int scrn_block)
         dest[i] = source[i];
 }
 
-void draw_tilemap(Tilemap tilemap, int stage_width, int x_grid, int y_grid)
+void load_scroller_tilemap(const u16* tilemap, int scrn_block, int stage_width, int x_grid, int y_grid)
 {
-    u16 *dest = screen_block(tilemap.scrn_block_index);
-    u16 *source = (u16*)tilemap.tilemap;
+    u16 *dest = screen_block(scrn_block);
+    u16 *source = (u16*)tilemap;
     for (int i = 0; i < 21; i++)
         for (int j = 0; j < 31; j++)
             dest[i * 32 + j] = (source + (y_grid + i) * (stage_width / TILE_SIZE))[x_grid + j];

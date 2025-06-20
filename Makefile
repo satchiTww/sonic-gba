@@ -26,7 +26,7 @@ ARCH         := -mthumb -mthumb-interwork
 SPECS        := -specs=gba.specs
 
 CC           := arm-none-eabi-gcc
-CFLAGS       := $(ARCH) -Wall -O2 -fno-strict-aliasing
+CFLAGS       := $(ARCH) -Wall -Wextra -O2 -fno-strict-aliasing
 CPPFLAGS     := $(addprefix -I,$(INCS)) -MMD -MP
 LDFLAGS      := $(addprefix -L,$(dir $(LIBS_TARGET))) $(ARCH) $(SPECS)
 LDLIBS       := $(addprefix -l,$(LIBS))
@@ -54,6 +54,9 @@ $(BUILD_DIR)/%.o: %.c
 
 -include $(DEPS)
 
+gbalib:
+	$(MAKE) -C gba
+
 clean:
 	$(info Cleaning...)
 	for f in $(dir $(LIBS_TARGET)); do $(MAKE) -C $$f clean; done
@@ -63,5 +66,5 @@ re:
 	$(MAKE) clean
 	$(MAKE) all
 
-.PHONY: clean re
+.PHONY: clean re gbalib
 .SILENT:
