@@ -1,4 +1,4 @@
-#include "gba.h"
+#include "gba_video.h"
 #include "camera.h"
 #include <stdlib.h>
 
