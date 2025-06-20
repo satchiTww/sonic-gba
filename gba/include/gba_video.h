@@ -74,71 +74,8 @@ INLINE COLOR RGB15(u32 red, u32 green, u32 blue)
 #define BGCNT_SIZE1           0x4000 //512x256 | 256x256
 #define BGCNT_SIZE2           0x8000 //256x512 | 512x512
 #define BGCNT_SIZE3           0xC000 //512x512 | 1024x1024
-/*===============PALETTE====================*/
-#define PAL_MEM   ((u16*)PALRAM)
 
-#define BG_PAL_INDEX 0
-#define OBJ_PAL_INDEX 256
-
-typedef struct {
-    const u16 *data;
-    int lenght;
-    int index;
-} Palette;
-
-void load_palette(const u16* data, int lenght, int index);
-
-/*================TILES===================*/
-#define TILE_SIZE 8
-
-#define OAM_CHARBLOCK 4
-
-typedef struct {
-    const u16* data;
-    int lenght;
-    int char_block;
-    int char_block_index;
-} Tileset;
-
-typedef struct {
-    const u16* data;
-    int lenght;
-    int scrn_block_index;
-} Tilemap;
-
-INLINE u16* char_block(u32 block)
-{    return (u16*)(VRAM + (block*0x4000));    }
-
-
-INLINE u16* screen_block(u32 block)
-{    return (u16*)(VRAM + (block*0x800));    }
-
-void load_tileset(const u16* data, int lenght, int ch_block, int index);
-void load_tilemap(const u16* data, int lenght, int scrn_block);
-void load_scroller_tilemap(const u16* data, int scrn_block, int stage_width, int x_grid, int y_grid);
-
-/*===============OAM (Sprites)================*/
-typedef struct {
-    u16 attr0;
-    u16 attr1;
-    u16 attr2;
-    s16 fill;
-} ALIGN4 OBJ_ATTR; //credits to Jasper “cearn” Vijn
-
-typedef struct {
-    u16 fill0[3];
-    s16 pa;
-    u16 fill1[3];
-    s16 pb;
-    u16 fill2[3];
-    s16 pc;
-    u16 fill3[3];
-    s16 pd;
-} ALIGN4 OBJ_AFFINE; //credits to Jasper “cearn” Vijn
-
-#define OAM_MEM   ((OBJATTR*)OAM)
-
-//Attr0 bits
+/*========OBJ ATTRIBUTES BITS======================*/
 #define ATTR0_YPOS(y)    ((y) & 0xFF)
 #define ATTR0_AFFINE     0x0200
 #define ATTR0_SEMITRANS  0x0400
@@ -170,19 +107,5 @@ typedef struct {
 
 //Attr3 bits (sprite rotation and scaling)
 #define AFFINE3_ROTSCAL(s, i, f) (((s) << 16) & 0x8000) | (((i) << 8) & 0x7F00) | ((f) & 0xFF) //sign, integer, fraction
-
-INLINE OBJ_ATTR *obj_set_attr(OBJ_ATTR *obj, u16 attr0, u16 attr1, u16 attr2)
-{
-    obj->attr0 = attr0;
-    obj->attr1 = attr1;
-    obj->attr2 = attr2;
-    return obj;
-}
-
-INLINE void obj_set_pos(OBJ_ATTR *obj, int x, int y)
-{
-    obj->attr0 &= 0xFF00; obj->attr0 |= ATTR0_YPOS(y);
-    obj->attr1 &= 0xFE00; obj->attr1 |= ATTR1_XPOS(x);
-}
 
 #endif
