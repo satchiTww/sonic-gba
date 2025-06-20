@@ -13,6 +13,6 @@ void scene_add(Scene *scene);
 void scenes_handle();
 void scene_set_next(Scene *scene);
 
-#include "scene_test_room.h"
+#include "scene_testRoom.h"
 
 #endif
