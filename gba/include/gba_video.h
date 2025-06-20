@@ -81,26 +81,28 @@ INLINE COLOR RGB15(u32 red, u32 green, u32 blue)
 #define OBJ_PAL_INDEX 256
 
 typedef struct {
-    const u16 *palette;
-    int pal_len;
+    const u16 *data;
+    int lenght;
     int index;
 } Palette;
 
-void load_palette(const u16* palette, int pal_len, int index);
+void load_palette(const u16* data, int lenght, int index);
 
 /*================TILES===================*/
 #define TILE_SIZE 8
 
+#define OAM_CHARBLOCK 4
+
 typedef struct {
-    const u16* tileset;
-    int tileset_len;
+    const u16* data;
+    int lenght;
     int char_block;
     int char_block_index;
 } Tileset;
 
 typedef struct {
-    const u16* tilemap;
-    int tilemap_len;
+    const u16* data;
+    int lenght;
     int scrn_block_index;
 } Tilemap;
 
@@ -111,9 +113,9 @@ INLINE u16* char_block(u32 block)
 INLINE u16* screen_block(u32 block)
 {    return (u16*)(VRAM + (block*0x800));    }
 
-void load_tileset(const u16* tileset, int tileset_len, int ch_block, int index);
-void load_tilemap(const u16* tilemap, int tilemap_len, int scrn_block);
-void load_scroller_tilemap(const u16* tilemap, int scrn_block, int stage_width, int x_grid, int y_grid);
+void load_tileset(const u16* data, int lenght, int ch_block, int index);
+void load_tilemap(const u16* data, int lenght, int scrn_block);
+void load_scroller_tilemap(const u16* data, int scrn_block, int stage_width, int x_grid, int y_grid);
 
 /*===============OAM (Sprites)================*/
 typedef struct {
