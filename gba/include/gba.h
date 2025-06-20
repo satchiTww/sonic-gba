@@ -7,6 +7,9 @@
 #include "gba_interrupt.h"
 #include "gba_bios.h"
 #include "gba_video.h"
+#include "gba_palette.h"
+#include "gba_tiles.h"
+#include "gba_objects.h"
 #include "gba_input.h"
 
 #endif
