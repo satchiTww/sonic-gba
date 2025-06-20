@@ -18,8 +18,8 @@ static Camera *camera;
 
 static Player *player;
 
-void move_bg0();
-void move_bg1();
+static void move_bg0();
+static void move_bg1();
 
 static void test_room_init()
 {
@@ -84,7 +84,7 @@ Scene testRoom=
 };
 
 //move background 0
-void move_bg0()
+static void move_bg0()
 {
     static fixed8 bg0HScroll = 0;
     static fixed8 bg0VScroll = 0;
@@ -96,7 +96,7 @@ void move_bg0()
     REG_BG0VOFS = fixed8_to_int(bg0VScroll);
 }
 
-void move_bg1()
+static void move_bg1()
 {
     static fixed8 bg1HScroll = 0;
     static fixed8 bg1VScroll = 0;
