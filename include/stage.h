@@ -6,7 +6,7 @@
 typedef struct {
     int mapWidth;
     int mapHeight;
-    const u16* tilemap;
+    const u16* tilemap_data;
 } Stage;
 
 
