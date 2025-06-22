@@ -8,8 +8,8 @@
 #define IORAM    0X04000000 //i/o registers.
 
 //Internal Display Memory
-#define PALRAM   0x05000000 //Palette for BG and Sprites. 16bit port. BG: 0x05000000. Sprites: 0x05000200
+#define PALRAM   0x05000000 //Palette for BG and OAM. 16bit port. BG: 0x05000000. Sprites: 0x05000200
 #define VRAM     0x06000000 //store frame buffer in bitmap modes and tile/maps data. 96kb size. 16bit port.
-#define OAM      0x07000000 //OBJ attribute memory. Control sprites. 32bit port.
+#define OAM      0x07000000 //OBJ attribute memory. 32bit port.
 
 #endif
