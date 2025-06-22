@@ -7,6 +7,12 @@
 #define TARG_ARM  __attribute__((target("arm")))
 #define SEC_IWRAM __attribute__((section(".iwram")))
 
+#define ON 1
+#define OFF 0
+
+#define TRUE 1
+#define FALSE 0
+
 //unsigned types
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -22,7 +28,6 @@ typedef s32 fixed8;
 
 INLINE s32 fixed8_to_int(fixed8 x)
 {    return (x >> 8);    }
-
 
 typedef void (*func_ptr)(void);
 
