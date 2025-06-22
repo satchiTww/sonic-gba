@@ -16,4 +16,10 @@ typedef struct {
 
 void load_palette(const u16* data, int lenght, int index);
 
+INLINE void palette_set_color(int pal_index, COLOR target_color)
+{
+    u16 *dest = PAL_MEM + pal_index;
+    *dest = target_color;
+}
+
 #endif
