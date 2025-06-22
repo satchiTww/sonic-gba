@@ -75,37 +75,4 @@ INLINE COLOR RGB15(u32 red, u32 green, u32 blue)
 #define BGCNT_SIZE2           0x8000 //256x512 | 512x512
 #define BGCNT_SIZE3           0xC000 //512x512 | 1024x1024
 
-/*========OBJ ATTRIBUTES BITS======================*/
-#define ATTR0_YPOS(y)    ((y) & 0xFF)
-#define ATTR0_AFFINE     0x0200
-#define ATTR0_SEMITRANS  0x0400
-#define ATTR0_OBJWINDOW  0x0800
-#define ATTR0_MOSAIC     0x1000
-#define ATTR0_256COLOR   0x2000
-#define ATTR0_SPRTSHAPE0 0x0000
-#define ATTR0_SPRTSHAPE1 0x4000
-#define ATTR0_SPRTSHAPE2 0x8000
-#define ATTR0_SPRTSHAPE3 0xC000
-
-//Attr1 bits
-#define ATTR1_XPOS(x)          ((x) & 0x1FF)
-#define ATTR1_HFLIP            0x1000
-#define ATTR1_VFLIP            0x2000
-#define ATTR1_ROT_SCAL_INDX(x) (((x) << 9) & 0x3E00)
-#define ATTR1_SPRTSIZE0        0x0000
-#define ATTR1_SPRTSIZE1        0x4000
-#define ATTR1_SPRTSIZE2        0x8000
-#define ATTR1_SPRTSIZE3        0xC000
-
-//Attr2 bits
-#define ATTR2_TILENUM(x) ((x) & 0x3FF)
-#define ATTR2_PRIORITY0  0x0000
-#define ATTR2_PRIORITY1  0x0400
-#define ATTR2_PRIORITY2  0x0800
-#define ATTR2_PRIORITY3  0x0C00
-#define ATTR2_PALNUM(x)  (((x) << 12) & 0xF000)
-
-//Attr3 bits (sprite rotation and scaling)
-#define AFFINE3_ROTSCAL(s, i, f) (((s) << 16) & 0x8000) | (((i) << 8) & 0x7F00) | ((f) & 0xFF) //sign, integer, fraction
-
 #endif
