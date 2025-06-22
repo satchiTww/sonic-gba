@@ -54,10 +54,14 @@ static void test_room_init()
     load_tileset(TestZoneTiles, TestZoneTilesLen, 0, 2);
 
     /*oam setup*/
-    load_sprite(&sprTeto);
+    load_sprite(&sprTeto, 32, 32, 12, 0);
     
     camera = camera_create(camera, 0, 64);
     player = player_create(player, FIXED8(48, 0), FIXED8(128, 0), AIRBORNE);
+
+    //test
+    for (int i = 0; i < OAM_MAX_ENTRIES; i++)
+        OAM_MEM[i] = obj_buffer[i];
 }
 
 static void test_room_update()
