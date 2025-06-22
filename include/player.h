@@ -5,8 +5,8 @@
 #include "stage.h"
 #include "camera.h"
 
-#define PLAYER_SPRITE_OFFSET_X 32
-#define PLAYER_SPRITE_OFFSET_Y 37
+#define PLAYER_SPRITE_OFFSET_X 17
+#define PLAYER_SPRITE_OFFSET_Y 28
 
 typedef enum {
     NORMAL,
