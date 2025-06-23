@@ -62,18 +62,25 @@ extern OBJ_ATTR obj_buffer[OAM_MAX_ENTRIES];
 #define OBJ_SIZE_2        2
 #define OBJ_SIZE_3        3
 
+//set the position of an object
 INLINE void obj_set_pos(OBJ_ATTR *obj, int x, int y)
 {
-    //obj->attr0 &= 0xFF00; obj->attr0 |= ATTR0_YPOS(y);
-    //obj->attr1 &= 0xFE00; obj->attr1 |= ATTR1_XPOS(x);
-
     obj->xPos = x;
     obj->yPos = y;
 }
 
+//set the background priority of an object
 INLINE void obj_set_bg_priority(OBJ_ATTR *obj, int bgPriority)
 {
     obj->bgPriority = bgPriority;
+}
+
+//Copy all the data in the object buffer to the OAM
+INLINE void obj_update_oam()
+{
+    for (int i = 0; i < OAM_MAX_ENTRIES; i++)
+        OAM_MEM[i] = obj_buffer[i]
+    ;
 }
 
 #endif

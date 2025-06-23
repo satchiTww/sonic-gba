@@ -1,8 +1,8 @@
 #include "gba_tiles.h"
 
-void load_tileset(const u16* data, int lenght, int ch_block, int index)
+void load_tileset(const u16* data, int lenght, int ch_block, int offset)
 {
-    u32 *dest = (u32*)(char_block(ch_block) + (u16)(index * 0x10));
+    u32 *dest = (u32*)(char_block(ch_block) + (u16)(offset * 0x10));
     u32 *source = (u32*)data;
     for (int i = 0; i < lenght / 4; i++)
         dest[i] = source[i];
@@ -19,7 +19,7 @@ void load_tilemap(const u16* data, int lenght, int scrn_block)
 /*This is made specifically for loading and scrolling though big levels
  because the gba can only load a max of 1024x1024 background at once.
  In practice, this is the same method used by the Sonic Advance trilogy.
- There's definitely more efficient methods out there, but I don't think this one will cause issues in the future*/
+ There's definitely more efficient methods out there, but I think this one will work fine*/
 void load_scroller_tilemap(const u16* data, int scrn_block, int stage_width, int x_grid, int y_grid)
 {
     u16 *dest = screen_block(scrn_block);

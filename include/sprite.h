@@ -28,7 +28,6 @@ typedef struct {
 } Sprite;
 
 void load_sprite(Sprite *sprite, u32 xPos, u32 yPos, int objPriority, int bgPriority);
-void sprite_update_oam(Sprite *sprite);
 void sprite_set_pos(Sprite *sprite, u32 xPos, u32 yPos);
 
 #endif

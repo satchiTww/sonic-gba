@@ -54,14 +54,10 @@ static void test_room_init()
     load_tileset(TestZoneTiles, TestZoneTilesLen, 0, 2);
 
     /*oam setup*/
-    load_sprite(&sprTeto, 32, 32, 12, 0);
+    load_sprite(&sprTeto, 0, 0, 12, 0);
     
     camera = camera_create(camera, 0, 64);
     player = player_create(player, FIXED8(48, 0), FIXED8(128, 0), AIRBORNE);
-
-    //test
-    for (int i = 0; i < OAM_MAX_ENTRIES; i++)
-        OAM_MEM[i] = obj_buffer[i];
 }
 
 static void test_room_update()
@@ -69,9 +65,17 @@ static void test_room_update()
     player_routine(player, &testZone, camera);
 
     camera_clamp(camera, 0, testZone.mapWidth - SCREEN_WIDTH, 0, testZone.mapHeight - SCREEN_HEIGHT);
-    
+
+    sprite_set_pos(
+        &sprTeto,
+        (fixed8_to_int(player->xPos) - camera->xPos) - PLAYER_SPRITE_OFFSET_X,
+        (fixed8_to_int(player->yPos) - camera->yPos) - PLAYER_SPRITE_OFFSET_Y
+    );
+
     move_bg0();
     move_bg1();
+
+    obj_update_oam();
 }
 
 static void test_room_leave()
@@ -87,7 +91,6 @@ Scene testRoom=
     .leave = test_room_leave
 };
 
-//move background 0
 static void move_bg0()
 {
     static fixed8 bg0HScroll = 0;

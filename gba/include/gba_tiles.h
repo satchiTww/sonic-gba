@@ -20,7 +20,7 @@ typedef struct {
     int scrn_block_index;
 } Tilemap;
 
-void load_tileset(const u16* data, int lenght, int ch_block, int index);
+void load_tileset(const u16* data, int lenght, int ch_block, int offset);
 void load_tilemap(const u16* data, int lenght, int scrn_block);
 void load_scroller_tilemap(const u16* data, int scrn_block, int stage_width, int x_grid, int y_grid);
 

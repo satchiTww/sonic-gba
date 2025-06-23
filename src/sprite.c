@@ -21,6 +21,7 @@ void load_sprite(Sprite *sprite, u32 xPos, u32 yPos, int objPriority, int bgPrio
     //todo: update oam
 }
 
+//set the position of a sprite
 void sprite_set_pos(Sprite *sprite, u32 xPos, u32 yPos)
 {
     sprite->xPos = xPos;
