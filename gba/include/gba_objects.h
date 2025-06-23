@@ -71,4 +71,9 @@ INLINE void obj_set_pos(OBJ_ATTR *obj, int x, int y)
     obj->yPos = y;
 }
 
+INLINE void obj_set_bg_priority(OBJ_ATTR *obj, int bgPriority)
+{
+    obj->bgPriority = bgPriority;
+}
+
 #endif

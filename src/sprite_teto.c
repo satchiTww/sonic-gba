@@ -1,15 +1,19 @@
 #include "sprite.h"
 #include "data/sprites/teto.h"
 
-static OBJ_ATTR obj_sprTeto[2]=
+static SpriteObj sprObjTeto[2]=
 {
-    [0].shape = OBJ_SHAPE_SQUARE,
-    [0].size = OBJ_SIZE_2,
+    [0].offsetX = 0,
+    [0].offsetY = 0,
+    [0].attributes.shape = OBJ_SHAPE_SQUARE,
+    [0].attributes.size = OBJ_SIZE_2,
+    [0].attributes.tileID = 0,
 
-    [1].yPos = 32,
-    [1].shape = OBJ_SHAPE_WIDE,
-    [1].size = OBJ_SIZE_2,
-    [1].tileID = 16,
+    [1].offsetX = 0,
+    [1].offsetY = 32,
+    [1].attributes.shape = OBJ_SHAPE_WIDE,
+    [1].attributes.size = OBJ_SIZE_2,
+    [1].attributes.tileID = 16,
 };
 
 Sprite sprTeto=
@@ -30,5 +34,5 @@ Sprite sprTeto=
         .char_block_index = 0
     },
     .objCount = 2,
-    .obj = obj_sprTeto
+    .obj = sprObjTeto
 };
