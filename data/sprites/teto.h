@@ -3,12 +3,12 @@
 
 //======================================================================
 //
-//	teto, 32x48@4, 
+//	teto, 112x112@4, 
 //	+ palette 16 entries, not compressed
-//	+ 24 tiles not compressed
-//	Total size: 32 + 768 = 800
+//	+ 196 tiles not compressed
+//	Total size: 32 + 6272 = 6304
 //
-//	Time-stamp: 2025-06-21, 18:19:40
+//	Time-stamp: 2025-06-25, 14:10:45
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.6
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -17,8 +17,8 @@
 #ifndef GRIT_TETO_H
 #define GRIT_TETO_H
 
-#define tetoTilesLen 768
-extern const unsigned short tetoTiles[384];
+#define tetoTilesLen 6272
+extern const unsigned short tetoTiles[3136];
 
 #define tetoPalLen 32
 extern const unsigned short tetoPal[16];
