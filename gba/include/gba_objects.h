@@ -76,11 +76,7 @@ INLINE void obj_set_bg_priority(OBJ_ATTR *obj, int bgPriority)
 }
 
 //Copy all the data in the object buffer to the OAM
-INLINE void obj_update_oam()
-{
-    for (int i = 0; i < OAM_MAX_ENTRIES; i++)
-        OAM_MEM[i] = obj_buffer[i]
-    ;
-}
+//TODO: Loop though only the ammount of objects that need to be displayed on the frame (optimization)
+void obj_update_oam();
 
 #endif
