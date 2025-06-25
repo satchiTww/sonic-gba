@@ -60,11 +60,15 @@ void player_routine(Player *player, Stage *stage, Camera *camera)
         
         player_airborne_airdrag(player);
         
-        camera_follow(camera, fixed8_to_int(player->xPos), fixed8_to_int(player->yPos));
+        camera_follow(
+            camera,
+            fixed8_to_int(player->xPos + player->xSpeed),
+            fixed8_to_int(player->yPos + player->ySpeed)
+        );
 
         player_update_position(player);
         
-        player_airborne_gravity(player);
+        //player_airborne_gravity(player);
         break;
     }
     player_bounds_collision(player);
