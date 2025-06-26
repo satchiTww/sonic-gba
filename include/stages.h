@@ -1,7 +1,9 @@
-#ifndef STAGE_H
-#define STAGE_H
+#ifndef STAGES_H
+#define STAGES_H
 
 #include "gba_typedefs.h"
+
+#include "data/tilemaps/TestZone.h"
 
 typedef struct {
     int mapWidth;
@@ -9,5 +11,6 @@ typedef struct {
     const u16* tilemap_data;
 } Stage;
 
+extern Stage testZone;
 
 #endif

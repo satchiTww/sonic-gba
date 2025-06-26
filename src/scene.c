@@ -1,4 +1,4 @@
-#include "scene.h"
+#include "scenes.h"
 #include <stddef.h>
 
 static Scene *scenes[MAX_SCENES] = {0};

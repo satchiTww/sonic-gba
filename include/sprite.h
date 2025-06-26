@@ -21,12 +21,13 @@ typedef struct {
     int height; //in tiles
     int objPriority; //aka oam ID 0 - 128
     int bgPriority;
-    const Palette palette;
-    const Tileset tileset;
+    Palette palette;
+    Tileset tileset;
     int objCount;
     SpriteObj *obj;
 } Sprite;
 
+void sprite_load_tiles(Sprite *sprite);
 void load_sprite(Sprite *sprite, u32 xPos, u32 yPos, int objPriority, int bgPriority);
 void sprite_set_pos(Sprite *sprite, u32 xPos, u32 yPos);
 

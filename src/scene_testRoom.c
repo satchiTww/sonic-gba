@@ -1,18 +1,9 @@
 #include "gba.h"
-#include "scene.h"
-#include "stage.h"
+#include "scenes.h"
+#include "stages.h"
 #include "camera.h"
 #include "player.h"
-#include "sprite_teto.h"
 #include "data/backgrounds/TZ_bg0.h"
-#include "data/tilemaps/TestZone.h"
-
-static Stage testZone=
-{
-    .tilemap_data = TestZoneMap,
-    .mapWidth = 1008,
-    .mapHeight = 224
-};
 
 static Camera *camera;
 
@@ -53,11 +44,8 @@ static void test_room_init()
     load_palette(TestZonePal, TestZonePalLen, 2);
     load_tileset(TestZoneTiles, TestZoneTilesLen, 0, 2);
 
-    /*oam setup*/
-    load_sprite(&sprTeto, 0, 0, 12, 0);
-    
-    camera = camera_create(camera, 0, 64);
-    player = player_create(player, FIXED8(48, 0), FIXED8(128, 0), AIRBORNE);
+    camera = camera_create(0, 64);
+    player = player_create(FIXED8(48, 0), FIXED8(144, 0), AIRBORNE);
 }
 
 static void test_room_update()
@@ -66,16 +54,17 @@ static void test_room_update()
 
     camera_clamp(camera, 0, testZone.mapWidth - SCREEN_WIDTH, 0, testZone.mapHeight - SCREEN_HEIGHT);
 
+    /*
     sprite_set_pos(
-        &sprTeto,
+        &sprTeto_idle00,
         (fixed8_to_int(player->xPos) - camera->xPos) - PLAYER_SPRITE_OFFSET_X,
         (fixed8_to_int(player->yPos) - camera->yPos) - PLAYER_SPRITE_OFFSET_Y
-    );
+    );*/
 
-    move_bg0();
     move_bg1();
+    move_bg0();
 
-    obj_update_oam();
+    //obj_update_oam();
 }
 
 static void test_room_leave()

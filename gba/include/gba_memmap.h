@@ -5,7 +5,7 @@
 #define BIOS     0x00000000
 #define EWRAM    0x02000000 //external work ram. 256kb size. 16bit port.
 #define IWRAM    0x03000000 //internal work ram. 32kb size.  32bit port.
-#define IORAM    0X04000000 //i/o registers.
+#define IORAM    0X04000000 //i\o registers.
 
 //Internal Display Memory
 #define PALRAM   0x05000000 //Palette for BG and OAM. 16bit port. BG: 0x05000000. Sprites: 0x05000200

@@ -2,8 +2,10 @@
 #include "camera.h"
 #include <stdlib.h>
 
-Camera *camera_create(Camera *camera, int xPos, int yPos)
+Camera *camera_create(int xPos, int yPos)
 {
+    Camera *camera;
+
     camera = (Camera *)calloc(1, sizeof(Camera));
 
     camera->xPos = xPos;
@@ -12,7 +14,7 @@ Camera *camera_create(Camera *camera, int xPos, int yPos)
     return camera;
 }
 
-void camera_follow(Camera *camera, int targetX, int targetY)
+void camera_follow_target(Camera *camera, int targetX, int targetY)
 {
     camera->xPos = targetX - SCREEN_WIDTH / 2;
     camera->yPos = targetY - SCREEN_HEIGHT / 2;

@@ -24,8 +24,10 @@ static void player_airborne_gravity(Player *player);
 static void player_bounds_collision(Player *player);
 static void player_update_position(Player *player);
 
-Player *player_create(Player *player, fixed8 xPos, fixed8 yPos, playerState state)
+Player *player_create(fixed8 xPos, fixed8 yPos, playerState state)
 {
+    Player *player;
+
     player = (Player *)calloc(1, sizeof(Player));
 
     player->xPos = xPos;
@@ -60,7 +62,7 @@ void player_routine(Player *player, Stage *stage, Camera *camera)
         
         player_airborne_airdrag(player);
         
-        camera_follow(
+        camera_follow_target(
             camera,
             fixed8_to_int(player->xPos + player->xSpeed),
             fixed8_to_int(player->yPos + player->ySpeed)

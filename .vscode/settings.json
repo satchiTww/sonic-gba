@@ -3,6 +3,7 @@
         "gba_video.h": "c",
         "scene.h": "c",
         "tz_bg0.h": "c",
-        "gba_typedefs.h": "c"
+        "gba_typedefs.h": "c",
+        "testzone.h": "c"
     }
 }

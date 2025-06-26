@@ -1,5 +1,5 @@
-#ifndef SCENE_H
-#define SCENE_H
+#ifndef SCENES_H
+#define SCENES_H
 
 typedef struct {
     void (*init)(void);
@@ -9,10 +9,12 @@ typedef struct {
 
 #define MAX_SCENES 100 //temp value
 
+extern Scene testRoom;
+
 void scene_add(Scene *scene);
 void scenes_handle();
 void scene_set_next(Scene *scene);
 
-#include "scene_testRoom.h"
+
 
 #endif

@@ -1,4 +1,5 @@
 *.elf
 *.gba
-build/
 *.a
+build/
+tools/

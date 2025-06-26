@@ -1,8 +1,8 @@
 #include "gba.h"
-#include "scene.h"
+#include "scenes.h"
 
-void irq_setup();
-void scenes_setup();
+static void irq_setup();
+static void scenes_setup();
 
 int main(void)
 {
@@ -22,7 +22,7 @@ int main(void)
     return 0;
 }
 
-void irq_setup()
+static void irq_setup()
 {
     irq_init();
     
@@ -33,7 +33,7 @@ void irq_setup()
     REG_IME       = 1;
 }
 
-void scenes_setup()
+static void scenes_setup()
 {
     //adds all scenes that will be used in the game
     scene_add(&testRoom);

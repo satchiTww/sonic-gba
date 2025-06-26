@@ -30,22 +30,35 @@
 #define REG_IFBIOS   *((volatile u16*)0x03007FF8) //BIOS interrupt Flags
 #define REG_WAITCNT  *((u16*)0x04000204)          //Wait State Control
 #define REG_IME      *((u16*)0x04000208)          //Interrupt Master Enable
-/*TODO 1:
--All the other display registers
--Sound registers
-?Alternative DMG Sound register names
-?DMA Transfer Channels
--Timer Registers
-?Normal / SPI
-?Multiplay
-?UART
-*/
+//TODO: -All the other display registers
+//TODO: -Sound registers
+//TODO: ?Alternative DMG Sound register names
+/*=============DMA======================*/
+#define REG_DMA0SAD *((volatile u32*)0x040000B0)          //DMA 0 Source Adress
+#define REG_DMA1SAD *((volatile u32*)0x040000BC)          //DMA 1 Source Adress
+#define REG_DMA2SAD *((volatile u32*)0x040000C8)          //DMA 2 Source Adress
+#define REG_DMA3SAD *((volatile u32*)0x040000D4)          //DMA 3 Source Adress
+
+#define REG_DMA0DAD *((volatile u32*)0x040000B4)          //DMA 0 Destination Adress
+#define REG_DMA1DAD *((volatile u32*)0x040000C0)          //DMA 1 Destination Adress
+#define REG_DMA2DAD *((volatile u32*)0x040000CC)          //DMA 2 Destination Adress
+#define REG_DMA3DAD *((volatile u32*)0x040000D8)          //DMA 3 Destination Adress
+
+#define REG_DMA0CNT *((volatile u32*)0x040000B8)          //DMA 0 Control Register
+#define REG_DMA1CNT *((volatile u32*)0x040000C8)          //DMA 0 Control Register
+#define REG_DMA2CNT *((volatile u32*)0x040000D0)          //DMA 0 Control Register
+#define REG_DMA3CNT *((volatile u32*)0x040000DC)          //DMA 0 Control Register
+
+
+//TODO: -Timer Registers
+//TODO: ?Normal / SPI
+//TODO: ?Multiplay
+//TODO: ?UART
 /*=============KEYPAD=================*/
 #define REG_KEYINPUT *((volatile u16*)0x04000130) //Keypad input
 #define REG_KEYCNT   *((volatile u16*)0x04000132) //Keypad wake and interrupt control
 /*TODO 2:
 ?Serial port (EXT.) control
--Interrupts
 ?Cartridge slot control
 ?System control
 */
