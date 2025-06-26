@@ -1,19 +1,18 @@
 #include "gba_tiles.h"
+#include "gba_dma.h"
 
 void load_tileset(const u16* data, int lenght, int ch_block, int offset)
 {
     u32 *dest = (u32*)(char_block(ch_block) + (u16)(offset * 0x10));
     u32 *source = (u32*)data;
-    for (int i = 0; i < lenght / 4; i++)
-        dest[i] = source[i];
+    dma3_cpy(dest, source, lenght / 4, DMA_CPY32);
 }
 
 void load_tilemap(const u16* data, int lenght, int scrn_block)
 {
     u32 *dest = (u32*)screen_block(scrn_block);
     u32 *source = (u32*)data;
-    for (int i = 0; i < lenght / 4; i++)
-        dest[i] = source[i];
+    dma3_cpy(dest, source, lenght / 4, DMA_CPY32);
 }
 
 /*This is made specifically for loading and scrolling though big levels
@@ -24,7 +23,7 @@ void load_scroller_tilemap(const u16* data, int scrn_block, int stage_width, int
 {
     u16 *dest = screen_block(scrn_block);
     u16 *source = (u16*)data;
-    for (int i = 0; i < 21; i++)
-        for (int j = 0; j < 31; j++)
-            dest[i * 32 + j] = (source + (y_grid + i) * (stage_width / TILE_SIZE))[x_grid + j];
+    for (int i = 0; i < 21; i++) {
+        dma3_cpy(&dest[i * 32], &(source + (y_grid + i) * (stage_width / TILE_SIZE))[x_grid], 31, DMA_CPY16);
+    }
 }
