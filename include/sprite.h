@@ -17,8 +17,8 @@ typedef struct {
 typedef struct {
     u32 xPos; //in px
     u32 yPos; //in px
-    int width; //in tiles
-    int height; //in tiles
+    int width; //in 8px (a tile)
+    int height; //in 8px (a tile)
     int objPriority; //aka oam ID 0 - 128
     int bgPriority;
     Palette palette;
@@ -27,8 +27,9 @@ typedef struct {
     SpriteObj *obj;
 } Sprite;
 
-void sprite_load_tiles(Sprite *sprite);
-void load_sprite(Sprite *sprite, u32 xPos, u32 yPos, int objPriority, int bgPriority);
+void sprite_load_pal(Sprite *sprite);
+void sprite_load_tileset(Sprite *sprite);
+void sprite_load_obj(Sprite *sprite);
 void sprite_set_pos(Sprite *sprite, u32 xPos, u32 yPos);
 
 #endif

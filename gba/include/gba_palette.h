@@ -5,8 +5,8 @@
 
 #define PAL_MEM   ((u16*)PALRAM)
 
-#define BG_PAL_INDEX 0
-#define OBJ_PAL_INDEX 256
+#define PAL_BG_INDEX 0
+#define PAL_OBJ_INDEX 256
 
 typedef struct {
     const u16 *data;
@@ -14,12 +14,11 @@ typedef struct {
     int index;
 } Palette;
 
-void load_palette(const u16* data, int lenght, int index);
+void palette_load(const u16* pal_data, int data_lenght, int pal_index);
 
 INLINE void palette_set_color(int pal_index, COLOR target_color)
 {
-    u16 *dest = PAL_MEM + pal_index;
-    *dest = target_color;
+    PAL_MEM[pal_index] = target_color;
 }
 
 #endif

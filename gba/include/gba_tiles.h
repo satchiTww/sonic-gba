@@ -5,13 +5,24 @@
 
 #define TILE_SIZE 8
 
-#define OAM_CHARBLOCK 4 //the charblocks 0-3 are for the background. This marks where the Object charblock starts
+typedef struct { u32 data[8]; }  TILE;
+typedef struct { u32 data[16]; } TILE8;
+
+typedef TILE  CHARBLOCK[512];
+typedef TILE8 CHARBLOCK8[256];
+
+#define TILE_MEM  ((CHARBLOCK*)VRAM)
+#define TILE8_MEM ((CHARBLOCK8*)VRAM)
+
+typedef u16 SCREENBLOCK[1024];
+
+#define SCREENBLOCK_MEM ((SCREENBLOCK*)VRAM)
 
 typedef struct {
     const u16* data;
     int lenght;
     int char_block;
-    int char_block_index;
+    int char_block_offset;
 } Tileset;
 
 typedef struct {
@@ -20,16 +31,8 @@ typedef struct {
     int scrn_block_index;
 } Tilemap;
 
-void load_tileset(const u16* data, int lenght, int ch_block, int offset);
-void load_tilemap(const u16* data, int lenght, int scrn_block);
-void load_scroller_tilemap(const u16* data, int scrn_block, int stage_width, int x_grid, int y_grid);
-
-//returns a block of the charblock
-INLINE u16* char_block(u32 block)
-{    return (u16*)(VRAM + (block*0x4000));    }
-
-//returns a block of the screenblock
-INLINE u16* screen_block(u32 block)
-{    return (u16*)(VRAM + (block*0x800));    }
+void tiles_load(const u16* tile_data, int data_lenght, int char_block, int tile_index);
+void tiles_load_tilemap(const u16* tilemap_data, int data_lenght, int scrn_block);
+void tiles_tilemap_scroll(const u16* data, int scrn_block, int map_tiles_width, int xGrid, int yGrid);
 
 #endif

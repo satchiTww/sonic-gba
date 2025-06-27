@@ -1,29 +1,30 @@
 #include "gba_tiles.h"
 #include "gba_dma.h"
 
-void load_tileset(const u16* data, int lenght, int ch_block, int offset)
+void tiles_load(const u16* tile_data, int data_lenght, int char_block, int tile_index)
 {
-    u32 *dest = (u32*)(char_block(ch_block) + (u16)(offset * 0x10));
-    u32 *source = (u32*)data;
-    dma3_cpy(dest, source, lenght / 4, DMA_CPY32);
+    dma3_cpy(&TILE_MEM[char_block][tile_index], tile_data, data_lenght, DMA_CPY32);
 }
 
-void load_tilemap(const u16* data, int lenght, int scrn_block)
+void tiles_load_tilemap(const u16* tilemap_data, int data_lenght, int scrn_block)
 {
-    u32 *dest = (u32*)screen_block(scrn_block);
-    u32 *source = (u32*)data;
-    dma3_cpy(dest, source, lenght / 4, DMA_CPY32);
+    dma3_cpy(&SCREENBLOCK_MEM[scrn_block], tilemap_data, data_lenght, DMA_CPY32);
 }
 
 /*This is made specifically for loading and scrolling though big levels
  because the gba can only load a max of 1024x1024 background at once.
  In practice, this is the same method used by the Sonic Advance trilogy.
  There's definitely more efficient methods out there, but I think this one will work fine*/
-void load_scroller_tilemap(const u16* data, int scrn_block, int stage_width, int x_grid, int y_grid)
+void tiles_tilemap_scroll(const u16* data, int scrn_block, int map_tiles_width, int xGrid, int yGrid)
 {
-    u16 *dest = screen_block(scrn_block);
-    u16 *source = (u16*)data;
+    int horiz_scroll_size = 31;
+    int vert_scroll_size = 32;
     for (int i = 0; i < 21; i++) {
-        dma3_cpy(&dest[i * 32], &(source + (y_grid + i) * (stage_width / TILE_SIZE))[x_grid], 31, DMA_CPY16);
+        dma3_cpy(
+            &SCREENBLOCK_MEM[scrn_block][i * vert_scroll_size],
+            &((u16*)data + (yGrid + i) * map_tiles_width)[xGrid],
+            horiz_scroll_size,
+            DMA_CPY16
+        );
     }
 }

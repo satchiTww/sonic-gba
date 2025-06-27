@@ -3,7 +3,8 @@
 #include "stages.h"
 #include "camera.h"
 #include "player.h"
-#include "data/backgrounds/TZ_bg0.h"
+#include "data/gfx/backgrounds/TZ_bg0.h"
+#include "data/sprite_data/teto/spr_teto.h"
 
 static Camera *camera;
 
@@ -30,9 +31,9 @@ static void test_room_init()
         BGCNT_SCRNBLOCK(28) |
         BGCNT_SIZE0
     ;
-    load_palette(TZ_bg0Pal, TZ_bg0PalLen, 0);
-    load_tileset(TZ_bg0Tiles, TZ_bg0TilesLen, 0, 0);
-    load_tilemap(TZ_bg0Map, TZ_bg0MapLen, 28);
+    palette_load(TZ_bg0Pal, TZ_bg0PalLen, 0);
+    tiles_load(TZ_bg0Tiles, TZ_bg0TilesLen, 0, 0);
+    tiles_load_tilemap(TZ_bg0Map, TZ_bg0MapLen, 28);
 
     /*Background 1 Setup*/
     REG_BG1CNT =
@@ -41,8 +42,13 @@ static void test_room_init()
         BGCNT_SCRNBLOCK(29) |
         BGCNT_SIZE0
     ;
-    load_palette(TestZonePal, TestZonePalLen, 2);
-    load_tileset(TestZoneTiles, TestZoneTilesLen, 0, 2);
+    palette_load(TestZonePal, TestZonePalLen, 2);
+    tiles_load(TestZoneTiles, TestZoneTilesLen, 0, 2);
+
+    //sprites
+    sprite_load_pal(spr_teto_walk);
+    //sprite_load_tileset(spr_teto_walk);
+    //sprite_load_obj(spr_teto_walk);
 
     camera = camera_create(0, 64);
     player = player_create(FIXED8(48, 0), FIXED8(144, 0), AIRBORNE);
@@ -64,7 +70,8 @@ static void test_room_update()
     move_bg1();
     move_bg0();
 
-    //obj_update_oam();
+    obj_update_oam();
+    
 }
 
 static void test_room_leave()
@@ -102,10 +109,10 @@ static void move_bg1()
     REG_BG1HOFS = bg1HScroll;
     REG_BG1VOFS = bg1VScroll;
 
-    load_scroller_tilemap(
+    tiles_tilemap_scroll(
         testZone.tilemap_data,
         29,
-        testZone.mapWidth,
+        testZone.mapWidth / TILE_SIZE,
         camera->xPos / TILE_SIZE,
         camera->yPos / TILE_SIZE
     );

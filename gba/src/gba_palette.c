@@ -1,9 +1,7 @@
 #include "gba_palette.h"
 #include "gba_dma.h"
 
-void load_palette(const u16* data, int lenght, int index)
+void palette_load(const u16* pal_data, int data_lenght, int pal_index)
 {
-    u16 *dest = PAL_MEM + index;
-    u16 *source = (u16*)data;
-    dma3_cpy(dest, source, lenght / 2, DMA_CPY16);
+    dma3_cpy(&PAL_MEM[pal_index], (u16*)pal_data, data_lenght, DMA_CPY16);
 }

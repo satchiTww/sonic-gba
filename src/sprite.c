@@ -1,24 +1,24 @@
 #include "sprite.h"
+#include "gba_dma.h"
 
-void load_sprite(Sprite *sprite, u32 xPos, u32 yPos, int objPriority, int bgPriority)
+void sprite_load_pal(Sprite *sprite)
 {
-    load_palette(
-        sprite->palette.data,
-        sprite->palette.lenght,
-        sprite->palette.index
-    );
-    load_tileset(
-        sprite->tileset.data,
-        sprite->tileset.lenght,
-        sprite->tileset.char_block,
-        sprite->tileset.char_block_index
-    );
-    sprite->xPos = xPos;
-    sprite->yPos = yPos;
-    sprite->objPriority = objPriority;
-    sprite->bgPriority = bgPriority;
+    palette_load(sprite->palette.data, sprite->palette.lenght, sprite->palette.index);
+}
 
-    //todo: update oam
+void sprite_load_tileset(Sprite *sprite)
+{
+    //tiles_load(
+    //    sprite->tileset.data,
+    //    sprite->tileset.lenght,
+    //    sprite->tileset.char_block_offset
+    //);
+}
+
+void sprite_load_obj(Sprite *sprite)
+{
+    for (int i = 0; i < sprite->objCount; i++)
+        dma3_cpy(&obj_buffer[sprite->objPriority + i], &sprite->obj[i], 1, DMA_CPY16);
 }
 
 //set the position of a sprite
