@@ -6,6 +6,7 @@
 #define ALIGN4    __attribute__((aligned(4)))
 #define TARG_ARM  __attribute__((target("arm")))
 #define SEC_IWRAM __attribute__((section(".iwram")))
+#define SEC_EWRAM __attribute__((section(".ewram")))
 
 #define ON 1
 #define OFF 0
