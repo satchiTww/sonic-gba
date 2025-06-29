@@ -4,9 +4,7 @@
 #include "gba_typedefs.h"
 #include "stages.h"
 #include "camera.h"
-
-#define PLAYER_SPRITE_OFFSET_X 17
-#define PLAYER_SPRITE_OFFSET_Y 28
+#include "sprite.h"
 
 typedef enum {
     NORMAL,
