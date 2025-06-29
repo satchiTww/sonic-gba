@@ -1,7 +1,9 @@
 #ifndef GBA_OBJECTS_H
 #define GBA_OBJECTS_H
 
+#include "gba_typedefs.h"
 #include "gba_video.h"
+#include "gba_dma.h"
 
 #define OAM_MAX_ENTRIES 128
 
@@ -42,10 +44,13 @@ typedef struct {
 
 #define OAM_MEM ((OBJ_ATTR*)OAM)
 
-extern OBJ_ATTR obj_buffer[OAM_MAX_ENTRIES];
+extern OBJ_ATTR oam_buffer[OAM_MAX_ENTRIES];
+
+//keeps track of all the objects currently being displayed
+extern u32 gObjCount;
 
 #define OBJ_AFFINE        1
-#define OBJ_HIDE          2
+#define OBJ_DISABLE       2
 #define OBJ_AFFINE_DOUBLE 3
 
 #define OBJ_ALPHA_BLEND   1
@@ -54,6 +59,7 @@ extern OBJ_ATTR obj_buffer[OAM_MAX_ENTRIES];
 #define OBJ_4BPP          0
 #define OBJ_8BPP          1
 
+//shapes and sizes
 #define OBJ_SHAPE_SQUARE  0
 #define OBJ_SHAPE_WIDE    1
 #define OBJ_SHAPE_TALL    2
@@ -62,21 +68,28 @@ extern OBJ_ATTR obj_buffer[OAM_MAX_ENTRIES];
 #define OBJ_SIZE_2        2
 #define OBJ_SIZE_3        3
 
-//set the position of an object
-INLINE void obj_set_pos(OBJ_ATTR *obj, int x, int y)
-{
-    obj->xPos = x;
-    obj->yPos = y;
-}
+//shapes + sizes
+#define OBJ_8x8   0x0
+#define OBJ_16x16 0x1
+#define OBJ_32x32 0x2
+#define OBJ_64x64 0x3
+#define OBJ_16x8  0x4
+#define OBJ_32x8  0x5
+#define OBJ_32x16 0x6
+#define OBJ_64x32 0x7
+#define OBJ_8x16  0x8
+#define OBJ_8x32  0x9
+#define OBJ_16x32 0xA
+#define OBJ_32x64 0xB
 
-//set the background priority of an object
-INLINE void obj_set_bg_priority(OBJ_ATTR *obj, int bgPriority)
-{
-    obj->bgPriority = bgPriority;
-}
+//hides all the objects in oam
+void obj_init_oam();
 
-//Copy all the data in the object buffer to the OAM
-//TODO: Loop though only the ammount of objects that need to be displayed on the frame (optimization)
-void obj_update_oam();
+//Copy n entries in the oam buffer to the hardware OAM
+INLINE void obj_update_oam(u32 objCount)
+{
+    if (!objCount) objCount = 1;
+    dma3_cpy(OAM_MEM, oam_buffer, objCount * 2, DMA_CPY32);
+}
 
 #endif

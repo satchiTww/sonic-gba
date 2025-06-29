@@ -1,10 +1,14 @@
 #include "gba_objects.h"
 
-OBJ_ATTR obj_buffer[OAM_MAX_ENTRIES];
+SEC_EWRAM
+OBJ_ATTR oam_buffer[OAM_MAX_ENTRIES];
 
-void obj_update_oam()
+u32 gObjCount = 0;
+
+void obj_init_oam()
 {
-    for (int i = 0; i < OAM_MAX_ENTRIES; i++)
-        OAM_MEM[i] = obj_buffer[i]
-    ;
+    for (int i = 0; i < OAM_MAX_ENTRIES; i++) {
+        oam_buffer[i].affineMode = OBJ_DISABLE;
+    }
+    obj_update_oam(OAM_MAX_ENTRIES);
 }
