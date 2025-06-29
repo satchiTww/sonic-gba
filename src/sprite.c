@@ -1,7 +1,7 @@
 #include "sprite.h"
 #include <stdlib.h>
 
-Sprite *sprite_create(struct SpriteListNode **spriteNode, u32 xPos, u32 yPos, u16 tileID, u16 palNum, u16 bgPriority, u32 spritePriority, u32 objCount)
+Sprite *sprite_create(struct SpriteListNode **spriteNode, u32 xPos, u32 yPos, u16 tileID, u16 palNum, u16 bgPriority, u32 spritePriority, u32 numOfObjs)
 {
     Sprite *spr = calloc(1, sizeof(Sprite));
 
@@ -11,9 +11,9 @@ Sprite *sprite_create(struct SpriteListNode **spriteNode, u32 xPos, u32 yPos, u1
     spr->paletteNum = palNum;
     spr->bgPriority = bgPriority;
     spr->spritePriority = spritePriority;
-    spr->numOfObjs = objCount;
+    spr->numOfObjs = numOfObjs;
 
-    SpriteObj *sprObj = calloc(objCount, sizeof(SpriteObj));
+    SpriteObj *sprObj = calloc(numOfObjs, sizeof(SpriteObj));
     spr->sprObj = sprObj;
 
     *spriteNode = sprite_add_to_list(*spriteNode, spr);
