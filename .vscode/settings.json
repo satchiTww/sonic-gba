@@ -5,6 +5,7 @@
         "tz_bg0.h": "c",
         "gba_typedefs.h": "c",
         "testzone.h": "c",
-        "teto_walk.h": "c"
+        "teto_walk.h": "c",
+        "stdlib.h": "c"
     }
 }
