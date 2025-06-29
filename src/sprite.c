@@ -21,18 +21,6 @@ Sprite *sprite_create(struct SpriteListNode **spriteNode, u32 xPos, u32 yPos, u1
     return spr;
 }
 
-void sprite_add_list_to_oam_buffer(struct SpriteListNode *head)
-{
-    gObjCount = 0;
-    while (head != NULL) {
-        for (u32 i = 0; i < head->spritePtr->numOfObjs; gObjCount++, i++) {
-            OBJ_ATTR obj = sprite_get_object(head->spritePtr, i);
-            oam_buffer[gObjCount] = obj;
-        }
-        head = head->next;
-    }
-}
-
 struct SpriteListNode *sprite_add_to_list(struct SpriteListNode *head, Sprite *sprite)
 {
     struct SpriteListNode *newNode = (struct SpriteListNode*)malloc(sizeof(struct SpriteListNode));
@@ -59,6 +47,18 @@ struct SpriteListNode *sprite_add_to_list(struct SpriteListNode *head, Sprite *s
     return head;
 }
 
+void sprite_add_list_to_oam_buffer(struct SpriteListNode *head)
+{
+    gObjCount = 0;
+    while (head != NULL) {
+        for (u32 i = 0; i < head->spritePtr->numOfObjs; gObjCount++, i++) {
+            OBJ_ATTR obj = sprite_get_object(head->spritePtr, i);
+            oam_buffer[gObjCount] = obj;
+        }
+        head = head->next;
+    }
+}
+
 OBJ_ATTR sprite_get_object(Sprite *sprite, u32 objectNum)
 {
     OBJ_ATTR obj = {
@@ -75,45 +75,3 @@ OBJ_ATTR sprite_get_object(Sprite *sprite, u32 objectNum)
 
     return obj;
 }
-
-/*
-void sprite_update(Sprite *sprite)
-{
-    for (u32 i = 0; i < sprite->numOfObjs; i++) {
-        OBJ_ATTR obj = {
-            .xPos = sprite->xPos + sprite->sprObj[i].offsetX,
-            .yPos = sprite->yPos + sprite->sprObj[i].offsetY,
-            .hFlip = sprite->hFlip,
-            .vFlip = sprite->vFlip,
-            .bgPriority = sprite->bgPriority,
-            .paletteNum = sprite->paletteNum,
-            .tileID = sprite->tileID + sprite->sprObj[i].offsetTileID,
-            .shape = (sprite->sprObj[i].format & 0xC) >> 2,
-            .size = sprite->sprObj[i].format & 0x3
-        };
-        oam_buffer[sprite->spritePriority + i] = obj;
-    }
-}
-*/
-/*
-void sprite_load_pal(Sprite *sprite)
-{
-    palette_load(sprite->palette.data, sprite->palette.lenght, sprite->palette.index);
-}
-
-void sprite_set_pos(Sprite *sprite, int xPos, int yPos)
-{
-    sprite->xPos = xPos;
-    sprite->yPos = yPos;
-
-    for (int i = 0; i < sprite->objCount; i++) {
-        obj_set_pos(
-            &sprite->obj[i].attributes,
-            sprite->xPos + sprite->obj[i].offsetX,
-            sprite->yPos + sprite->obj[i].offsetY
-        );
-
-        obj_buffer[sprite->spritePriority + i] = sprite->obj[i].attributes;
-    }
-}
-*/
