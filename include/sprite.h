@@ -1,8 +1,7 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
-#include "gba_palette.h"
-#include "gba_tiles.h"
+#include "gba_typedefs.h"
 #include "gba_objects.h"
 
 //TODO: Affine Sprites
@@ -11,25 +10,34 @@
 typedef struct {
     int offsetX;
     int offsetY;
-    OBJ_ATTR attributes;
+    u32 offsetTileID;
+    u32 format:4; //size + shape of the object
 } SpriteObj;
 
 typedef struct {
-    u32 xPos; //in px
-    u32 yPos; //in px
-    int width; //in 8px (a tile)
-    int height; //in 8px (a tile)
-    int objPriority; //aka oam ID 0 - 128
-    int bgPriority;
-    Palette palette;
-    Tileset tileset;
-    int objCount;
-    SpriteObj *obj;
+    u32 xPos;
+    u32 yPos;
+    u32 hFlip;
+    u32 vFlip;
+    u32 spritePriority; //aka oam ID 0 - 128
+    u16 bgPriority;
+    u16 paletteNum;
+    u16 tileID;
+    u32 numOfObjs;
+    SpriteObj *sprObj;
 } Sprite;
 
-void sprite_load_pal(Sprite *sprite);
-void sprite_load_tileset(Sprite *sprite);
-void sprite_load_obj(Sprite *sprite);
-void sprite_set_pos(Sprite *sprite, u32 xPos, u32 yPos);
+struct SpriteListNode {
+    Sprite *spritePtr;
+    struct SpriteListNode *next;
+};
+
+void sprite_add_list_to_oam_buffer(struct SpriteListNode *head);
+struct SpriteListNode *sprite_add_to_list(struct SpriteListNode *head, Sprite *sprite);
+OBJ_ATTR sprite_get_object(Sprite *sprite, u32 objectNum);
+Sprite *sprite_create(struct SpriteListNode **spriteNode, u32 xPos, u32 yPos, u16 tileID, u16 palNum, u16 bgPriority, u32 spritePriority, u32 numOfObjs);
+//void sprite_update(Sprite *sprite);
+//void sprite_load_pal(Sprite *sprite);
+//void sprite_set_pos(Sprite *sprite, int xPos, int yPos);
 
 #endif
