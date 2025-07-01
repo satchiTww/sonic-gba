@@ -8,26 +8,9 @@
 #define OAM_MAX_ENTRIES 128
 
 typedef struct {
-    //attribute 0
-    u32 yPos:8;
-    u32 affineMode:2;
-    u32 objMode:2;
-    u32 mosaic:1;
-    u32 colorMode:1;
-    u32 shape:2;
-
-    //attribute 1
-    u32 xPos:9;
-    u32 affineIndex:3; //lower 3 bits
-    u32 hFlip:1;
-    u32 vFlip:1;
-    u32 size:2;
-
-    //attribute 2
-    u16 tileID:10;
-    u16 bgPriority:2;
-    u16 paletteNum:4;
-
+    u16 attr0;
+    u16 attr1;
+    u16 attr2;
     s16 fill;
 } ALIGN4 OBJ_ATTR;
 
@@ -46,27 +29,40 @@ typedef struct {
 
 extern OBJ_ATTR oam_buffer[OAM_MAX_ENTRIES];
 
-//keeps track of all the objects currently being displayed
-extern u32 gObjCount;
+//Attribute 0 bits
+#define ATTR0_YPOS(y)          ((y) & 0x00FF)
+#define ATTR0_MODE(m)          (((m) << 8) & 0x0300)
+#define ATTR0_NORMAL           0x0000
+#define ATTR0_AFF              0x0100
+#define ATTR0_HIDE             0x0200
+#define ATTR0_AFF_DBL          0x0300
+#define ATTR0_GFX(g)           (((g) << 0xA) & 0x0C00)
+#define ATTR0_BLEND            0x0400
+#define ATTR0_WIN              0x0800
+#define ATTR0_MOSAIC           0x1000
+#define ATTR0_4BPP             0x0000
+#define ATTR0_8BPP             0x2000
+#define ATTR0_SHAPE(s)         (((s) << 0xE) & 0xC000)
+#define ATTR0_SQUARE           0x0000
+#define ATTR0_WIDE             0x4000
+#define ATTR0_TALL             0x8000
 
-#define OBJ_AFFINE        1
-#define OBJ_DISABLE       2
-#define OBJ_AFFINE_DOUBLE 3
+//Attr1 bits
+#define ATTR1_XPOS(x)          ((x) & 0x01FF)
+#define ATTR1_AFF_ID(i)        (((i) << 9) & 0x3E00)
+#define ATTR1_FLIP(f)          (((f) << 0xC) & 0x3000)
+#define ATTR1_HFLIP            0x1000
+#define ATTR1_VFLIP            0x2000
+#define ATTR1_SIZE(s)          (((s) << 0xE) & 0xC000)
+#define ATTR1_SIZE0            0x0000
+#define ATTR1_SIZE1            0x4000
+#define ATTR1_SIZE2            0x8000
+#define ATTR1_SIZE3            0xC000
 
-#define OBJ_ALPHA_BLEND   1
-#define OBJ_WINDOW        2
-
-#define OBJ_4BPP          0
-#define OBJ_8BPP          1
-
-//shapes and sizes
-#define OBJ_SHAPE_SQUARE  0
-#define OBJ_SHAPE_WIDE    1
-#define OBJ_SHAPE_TALL    2
-#define OBJ_SIZE_0        0
-#define OBJ_SIZE_1        1
-#define OBJ_SIZE_2        2
-#define OBJ_SIZE_3        3
+//Attr2 bits
+#define ATTR2_TILE_ID(i)       ((i) & 0x3FF)
+#define ATTR2_PRIORITY(p)      (((p) << 0xA) & 0x0C00)
+#define ATTR2_PAL_ID(i)        (((i) << 0xC) & 0xF000)
 
 //shapes + sizes
 #define OBJ_8x8   0x0
@@ -82,14 +78,25 @@ extern u32 gObjCount;
 #define OBJ_16x32 0xA
 #define OBJ_32x64 0xB
 
-//hides all the objects in oam
 void obj_init_oam();
 
 //Copy n entries in the oam buffer to the hardware OAM
-INLINE void obj_update_oam(u32 objCount)
+void obj_update_oam();
+
+INLINE OBJ_ATTR *obj_set_attributes(OBJ_ATTR *obj, u16 attr0, u16 attr1, u16 attr2)
 {
-    if (!objCount) objCount = 1;
-    dma3_cpy(OAM_MEM, oam_buffer, objCount * 2, DMA_CPY32);
+    obj->attr0 = attr0;
+    obj->attr1 = attr1;
+    obj->attr2 = attr2;
+
+    return obj;
+}
+
+INLINE void obj_clear_oam_buffer()
+{
+    for (int i = 0; i < OAM_MAX_ENTRIES; i++) {
+        obj_set_attributes(&oam_buffer[i], ATTR0_HIDE, 0, 0);
+    }
 }
 
 #endif

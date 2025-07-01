@@ -5,6 +5,8 @@
 
 #define TILE_SIZE 8
 
+#define OBJ_CHARBLOCK 4
+
 typedef struct { u32 data[8]; }  TILE;
 typedef struct { u32 data[16]; } TILE8;
 
@@ -17,19 +19,6 @@ typedef TILE8 CHARBLOCK8[256];
 typedef u16 SCREENBLOCK[1024];
 
 #define SCREENBLOCK_MEM ((SCREENBLOCK*)VRAM)
-
-typedef struct {
-    const u16* data;
-    int lenght;
-    int char_block;
-    int char_block_offset;
-} Tileset;
-
-typedef struct {
-    const u16* data;
-    int lenght;
-    int scrn_block_index;
-} Tilemap;
 
 void tiles_load(const u16* tile_data, int data_lenght, int char_block, int tile_index);
 void tiles_load_tilemap(const u16* tilemap_data, int data_lenght, int scrn_block);

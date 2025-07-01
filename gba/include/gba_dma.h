@@ -7,8 +7,10 @@
 
 /*========DMA_CNT BITS============*/
 //type of increment dest
-#define DMA_DST_RELOAD 0x00600000
+#define DMA_DST_RELOAD 0x00018000
 //type of increment src
+#define DMA_SRC_FIXED  0x00040000
+//others
 #define DMA_REPEAT     0x02000000
 #define DMA_CPY16      0x00000000
 #define DMA_CPY32      0x04000000
@@ -26,6 +28,14 @@ INLINE void dma3_cpy(void *dest, const void *src, u32 count, u32 mode)
     REG_DMA3SAD = (u32)src;
     REG_DMA3DAD = (u32)dest;
     REG_DMA3CNT = count | mode | DMA_ENABLE;
+}
+
+INLINE void dma3_fill(void *dest, volatile u32 src, u32 count, u32 mode)
+{
+    REG_DMA3CNT = 0;
+    REG_DMA3SAD = (u32)&src;
+    REG_DMA3DAD = (u32)dest;
+    REG_DMA3CNT = count | mode | DMA_ENABLE | DMA_SRC_FIXED;
 }
 
 #endif
