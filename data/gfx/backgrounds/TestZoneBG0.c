@@ -15,7 +15,7 @@
 //
 //======================================================================
 
-const unsigned short TZ_bg0Tiles[32] __attribute__((aligned(4)))=
+const unsigned short TestZoneBG0Tiles[32] __attribute__((aligned(4)))=
 {
 	0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
 	0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
@@ -23,7 +23,7 @@ const unsigned short TZ_bg0Tiles[32] __attribute__((aligned(4)))=
 	0x1111,0x1111,0x1111,0x1111,0x1111,0x1111,0x1111,0x1111,
 };
 
-const unsigned short TZ_bg0Map[1024] __attribute__((aligned(4)))=
+const unsigned short TestZoneBG0Map[1024] __attribute__((aligned(4)))=
 {
 	0x0001,0x0001,0x0001,0x0001,0x0000,0x0000,0x0000,0x0000,
 	0x0001,0x0001,0x0001,0x0001,0x0000,0x0000,0x0000,0x0000,
@@ -170,7 +170,7 @@ const unsigned short TZ_bg0Map[1024] __attribute__((aligned(4)))=
 	0x0000,0x0000,0x0000,0x0000,0x0001,0x0001,0x0001,0x0001,
 };
 
-const unsigned short TZ_bg0Pal[2] __attribute__((aligned(4)))=
+const unsigned short TestZoneBG0Pal[2] __attribute__((aligned(4)))=
 {
 	0x204D,0x2057,
 };

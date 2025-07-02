@@ -3,8 +3,6 @@
 
 #include "gba_typedefs.h"
 
-#include "data/gfx/tilemaps/TestZone.h"
-
 typedef struct {
     int mapWidth;
     int mapHeight;

@@ -18,14 +18,14 @@
 #ifndef GRIT_TZ_BG0_H
 #define GRIT_TZ_BG0_H
 
-#define TZ_bg0TilesLen 64
-extern const unsigned short TZ_bg0Tiles[32];
+#define TestZoneBG0TilesLen 64
+extern const unsigned short TestZoneBG0Tiles[32];
 
-#define TZ_bg0MapLen 2048
-extern const unsigned short TZ_bg0Map[1024];
+#define TestZoneBG0MapLen 2048
+extern const unsigned short TestZoneBG0Map[1024];
 
-#define TZ_bg0PalLen 4
-extern const unsigned short TZ_bg0Pal[2];
+#define TestZoneBG0PalLen 4
+extern const unsigned short TestZoneBG0Pal[2];
 
 #endif // GRIT_TZ_BG0_H
 

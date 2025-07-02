@@ -5,7 +5,7 @@
 
 #define TILE_SIZE 8
 
-#define OBJ_CHARBLOCK 4
+#define TILE_OAM_CHARBLOCK 4
 
 typedef struct { u32 data[8]; }  TILE;
 typedef struct { u32 data[16]; } TILE8;

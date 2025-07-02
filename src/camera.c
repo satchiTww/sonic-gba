@@ -6,7 +6,7 @@ Camera *camera_create(int xPos, int yPos)
 {
     Camera *camera;
 
-    camera = (Camera *)calloc(1, sizeof(Camera));
+    camera = (Camera *)malloc(sizeof(Camera));
 
     camera->xPos = xPos;
     camera->yPos = yPos;

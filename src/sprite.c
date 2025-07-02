@@ -1,19 +1,32 @@
 #include "sprite.h"
+#include "gba_tiles.h"
 #include <stdlib.h>
 
-Sprite *sprite_create(struct SpriteListNode **spriteNode, u32 xPos, u32 yPos, u16 tileID, u16 palNum, u16 bgPriority, u32 spritePriority, u32 numOfObjs)
+Sprite *sprite_create(
+    struct SpriteListNode **spriteNode,
+    u16 xPos,
+    u16 yPos,
+    u16 tileID,
+    u16 palNum,
+    u8 bgPriority,
+    u8 spritePriority,
+    u8 numOfObjs,
+    SpriteObj *sprObj
+)
 {
-    Sprite *spr = calloc(1, sizeof(Sprite));
+    Sprite *spr = malloc(sizeof(Sprite));
 
     spr->xPos = xPos;
     spr->yPos = yPos;
+    spr->currentAnim = NULL;
+    spr->isActive = TRUE;
+    spr->hFlip = FALSE;
+    spr->vFlip = FALSE;
     spr->tileID = tileID;
     spr->paletteNum = palNum;
     spr->bgPriority = bgPriority;
     spr->spritePriority = spritePriority;
     spr->numOfObjs = numOfObjs;
-
-    SpriteObj *sprObj = calloc(numOfObjs, sizeof(SpriteObj));
     spr->sprObj = sprObj;
 
     *spriteNode = sprite_add_to_list(*spriteNode, spr);
@@ -47,31 +60,88 @@ struct SpriteListNode *sprite_add_to_list(struct SpriteListNode *head, Sprite *s
     return head;
 }
 
+struct SpriteListNode *sprite_remove_from_list(struct SpriteListNode *head, Sprite *sprite)
+{
+    struct SpriteListNode *curr = head;
+    struct SpriteListNode *prev = NULL;
+
+    if (curr != NULL && curr->spritePtr == sprite) {
+        head = curr->next;
+        free (curr);
+        return head;
+    }
+
+    while (curr != NULL && curr->spritePtr != sprite) {
+        prev = curr;
+        curr = curr->next;
+    }
+
+    if (curr == NULL)
+        return head;
+    
+    prev->next = curr->next;
+
+    free(curr);
+    return head;
+}
+
 void sprite_add_list_to_oam_buffer(struct SpriteListNode *head)
 {
-    gObjCount = 0;
+    u32 objCount = 0;
     while (head != NULL) {
-        for (u32 i = 0; i < head->spritePtr->numOfObjs; gObjCount++, i++) {
-            OBJ_ATTR obj = sprite_get_object(head->spritePtr, i);
-            oam_buffer[gObjCount] = obj;
+        if (head->spritePtr->isActive) {
+            for (u32 j = 0; j < head->spritePtr->numOfObjs; objCount++, j++) {
+                OBJ_ATTR obj = sprite_get_object(head->spritePtr, j);
+                oam_buffer[objCount] = obj;
+            }
         }
         head = head->next;
     }
 }
 
+void sprite_render_animation(Sprite *sprite, u32 duration)
+{
+    if (sprite->currentAnim == NULL) return;
+    
+    AnimatedSprite *anim = sprite->currentAnim;
+
+    animation_update_frame(anim, duration);
+
+    u32 index = anim->animIndex;
+
+    tiles_load(
+        anim->tileData[index].data,
+        anim->tileData[index].size,
+        TILE_OAM_CHARBLOCK,
+        sprite->tileID
+    );
+
+    sprite_load_oam(
+        sprite,
+        anim->sprObjData[index].data,
+        anim->sprObjData[index].size
+    );
+}
+
 OBJ_ATTR sprite_get_object(Sprite *sprite, u32 objectNum)
 {
-    OBJ_ATTR obj = {
-        .xPos = sprite->xPos + sprite->sprObj[objectNum].offsetX,
-        .yPos = sprite->yPos + sprite->sprObj[objectNum].offsetY,
-        .hFlip = sprite->hFlip,
-        .vFlip = sprite->vFlip,
-        .bgPriority = sprite->bgPriority,
-        .paletteNum = sprite->paletteNum,
-        .tileID = sprite->tileID + sprite->sprObj[objectNum].offsetTileID,
-        .shape = (sprite->sprObj[objectNum].format & 0xC) >> 2,
-        .size = sprite->sprObj[objectNum].format & 0x3
-    };
+    OBJ_ATTR obj;
+    u16 attr0 =
+        ATTR0_YPOS(sprite->yPos + sprite->sprObj[objectNum].offsetY) +
+        ATTR0_SHAPE((sprite->sprObj[objectNum].format & 0xC) >> 2)
+    ;
+    u16 attr1 =
+        ATTR1_XPOS(sprite->xPos + sprite->sprObj[objectNum].offsetX) +
+        ATTR1_FLIP(sprite->hFlip | sprite->vFlip) +
+        ATTR1_SIZE(sprite->sprObj[objectNum].format & 0x3)
+    ;
+    u16 attr2 =
+        ATTR2_TILE_ID(sprite->tileID + sprite->sprObj[objectNum].offsetTileID) +
+        ATTR2_PRIORITY(sprite->bgPriority) +
+        ATTR2_PAL_ID(sprite->paletteNum)
+    ;
+
+    obj_set_attributes(&obj, attr0, attr1, attr2);
 
     return obj;
 }

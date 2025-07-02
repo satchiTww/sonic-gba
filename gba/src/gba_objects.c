@@ -10,9 +10,3 @@ void obj_init_oam()
     }
     dma3_cpy(OAM_MEM, oam_buffer, OAM_MAX_ENTRIES * 2, DMA_CPY32);
 }
-
-void obj_update_oam()
-{
-    dma3_cpy(OAM_MEM, oam_buffer, OAM_MAX_ENTRIES * 2, DMA_CPY32);
-    obj_clear_oam_buffer();
-}

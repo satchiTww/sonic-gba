@@ -80,9 +80,6 @@ extern OBJ_ATTR oam_buffer[OAM_MAX_ENTRIES];
 
 void obj_init_oam();
 
-//Copy n entries in the oam buffer to the hardware OAM
-void obj_update_oam();
-
 INLINE OBJ_ATTR *obj_set_attributes(OBJ_ATTR *obj, u16 attr0, u16 attr1, u16 attr2)
 {
     obj->attr0 = attr0;
@@ -97,6 +94,12 @@ INLINE void obj_clear_oam_buffer()
     for (int i = 0; i < OAM_MAX_ENTRIES; i++) {
         obj_set_attributes(&oam_buffer[i], ATTR0_HIDE, 0, 0);
     }
+}
+
+INLINE void obj_update_oam()
+{
+    dma3_cpy(OAM_MEM, oam_buffer, OAM_MAX_ENTRIES * 2, DMA_CPY32);
+    obj_clear_oam_buffer();
 }
 
 #endif

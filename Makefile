@@ -14,6 +14,7 @@ SRC_FILES    := $(wildcard $(SRC_DIR)/*.c)
 
 DATA_DIR     := data
 DATA_FILES   := $(shell find $(DATA_DIR) -name '*.c')
+DATA_FILES   += $(shell find $(DATA_DIR) -name '*.s')
 
 BUILD_DIR    := build
 OBJ_FILES    := $(SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
@@ -48,6 +49,11 @@ $(LIBS_TARGET):
 	$(MAKE) -C $(@D)
 
 $(BUILD_DIR)/%.o: %.c
+	$(DIR_DUP)
+	$(info Compiling $< to $@...)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.o: %.s
 	$(DIR_DUP)
 	$(info Compiling $< to $@...)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@

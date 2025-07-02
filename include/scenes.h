@@ -12,7 +12,7 @@ typedef struct {
 extern Scene testRoom;
 
 void scene_add(Scene *scene);
-void scenes_handle();
+void scenes_handle(void);
 void scene_set_next(Scene *scene);
 
 

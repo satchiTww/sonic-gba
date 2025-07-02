@@ -1,29 +1,22 @@
 #include "animation.h"
+#include "gba_dma.h"
+#include <stdlib.h>
 
-void animation_tiles_play(const AnimatedTiles animTileset)
+void animation_update_frame(AnimatedSprite *anim, u32 duration)
 {
-    static int frameTimer = 0;
-    static int animationIndex = 0;
+    if (anim == NULL) return;
 
-    frameTimer++;
+    anim->animTimer++;
 
-    if (frameTimer >= animTileset.frameDuration[animationIndex]) {
-        frameTimer = 0;
+    if (anim->animTimer >= duration + anim->extraDuration[anim->animIndex]) {
+        anim->animTimer = 0;
+        anim->animIndex++;
 
-        animationIndex++;
-
-        if (animationIndex >= animTileset.numOfFrames) {
-            if (animTileset.isLoop)
-                animationIndex = 0;
+        if (anim->animIndex >= anim->numOfFrames) {
+            if (anim->isLoop)
+                anim->animIndex = 0;
             else
-                animationIndex = animTileset.numOfFrames;
+                anim->animIndex = anim->numOfFrames - 1;
         }
     }
-
-    tiles_load(
-        animTileset.frameTiles[animationIndex].data,
-        animTileset.frameTiles[animationIndex].lenght,
-        animTileset.frameTiles[animationIndex].char_block,
-        animTileset.frameTiles[animationIndex].char_block_offset
-    );
 }

@@ -1,9 +1,9 @@
 
-//{{BLOCK(TestZone)
+//{{BLOCK(TestZoneLvlLayout)
 
 //======================================================================
 //
-//	TestZone, 1008x224@4, 
+//	TestZoneLvlLayout, 1008x224@4, 
 //	+ palette 7 entries, not compressed
 //	+ 52 tiles (t|f|p reduced) not compressed
 //	+ regular map (flat), not compressed, 126x28 
@@ -15,18 +15,18 @@
 //
 //======================================================================
 
-#ifndef GRIT_TESTZONE_H
-#define GRIT_TESTZONE_H
+#ifndef GRIT_TestZoneLvlLayout_H
+#define GRIT_TestZoneLvlLayout_H
 
-#define TestZoneTilesLen 1664
-extern const unsigned short TestZoneTiles[832];
+#define TestZoneLvlLayoutTilesLen 1664
+extern const unsigned short TestZoneLvlLayoutTiles[832];
 
-#define TestZoneMapLen 7056
-extern const unsigned short TestZoneMap[3528];
+#define TestZoneLvlLayoutMapLen 7056
+extern const unsigned short TestZoneLvlLayoutMap[3528];
 
-#define TestZonePalLen 14
-extern const unsigned short TestZonePal[8];
+#define TestZoneLvlLayoutPalLen 14
+extern const unsigned short TestZoneLvlLayoutPal[8];
 
-#endif // GRIT_TESTZONE_H
+#endif // GRIT_TestZoneLvlLayout_H
 
-//}}BLOCK(TestZone)
+//}}BLOCK(TestZoneLvlLayout)

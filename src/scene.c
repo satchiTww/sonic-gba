@@ -23,7 +23,7 @@ void scene_set_next(Scene *scene)
 }
 
 //Main scene handler, call this once per frame
-void scenes_handle()
+void scenes_handle(void)
 {
     if (next_scene != NULL) {
         if (current_scene != NULL && current_scene->leave != NULL)

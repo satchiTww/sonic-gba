@@ -6,7 +6,7 @@
 #define PAL_MEM   ((u16*)PALRAM)
 
 #define PAL_BG_INDEX 0
-#define PAL_OBJ_INDEX 256
+#define PAL_OAM_INDEX 256
 
 void palette_load(const u16* pal_data, int data_lenght, int pal_index);
 

@@ -6,6 +6,19 @@
         "gba_typedefs.h": "c",
         "testzone.h": "c",
         "teto_walk.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "camera.h": "c",
+        "stages.h": "c",
+        "animation.h": "c",
+        "teto_oam.h": "c",
+        "compare": "c",
+        "concepts": "c",
+        "cstdlib": "c",
+        "type_traits": "c",
+        "cmath": "c",
+        "limits": "c",
+        "new": "c",
+        "testzonelvllayout.h": "c",
+        "testzonebg0.h": "c"
     }
 }

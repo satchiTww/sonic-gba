@@ -1,9 +1,9 @@
 
-//{{BLOCK(TestZone)
+//{{BLOCK(TestZoneLvlLayout)
 
 //======================================================================
 //
-//	TestZone, 1008x224@4, 
+//	TestZoneLvlLayout, 1008x224@4, 
 //	+ palette 7 entries, not compressed
 //	+ 52 tiles (t|f|p reduced) not compressed
 //	+ regular map (flat), not compressed, 126x28 
@@ -15,7 +15,7 @@
 //
 //======================================================================
 
-const unsigned short TestZoneTiles[832] __attribute__((aligned(4)))=
+const unsigned short TestZoneLvlLayoutTiles[832] __attribute__((aligned(4)))=
 {
 	0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
 	0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
@@ -135,7 +135,7 @@ const unsigned short TestZoneTiles[832] __attribute__((aligned(4)))=
 	0x4444,0x4444,0x4444,0x4444,0x4444,0x4444,0x4444,0x4444,
 };
 
-const unsigned short TestZoneMap[3528] __attribute__((aligned(4)))=
+const unsigned short TestZoneLvlLayoutMap[3528] __attribute__((aligned(4)))=
 {
 	0x0002,0x0002,0x0002,0x0002,0x0002,0x0002,0x0002,0x0002,
 	0x0002,0x0002,0x0002,0x0002,0x0002,0x0002,0x0002,0x0002,
@@ -635,9 +635,9 @@ const unsigned short TestZoneMap[3528] __attribute__((aligned(4)))=
 	0x0005,0x0006,0x0005,0x0006,0x0005,0x0006,0x0005,0x0006,
 };
 
-const unsigned short TestZonePal[8] __attribute__((aligned(4)))=
+const unsigned short TestZoneLvlLayoutPal[8] __attribute__((aligned(4)))=
 {
 	0x1C42,0x3887,0x38E7,0x4106,0x4186,0x6A10,0x7739,
 };
 
-//}}BLOCK(TestZone)
+//}}BLOCK(TestZoneLvlLayout)

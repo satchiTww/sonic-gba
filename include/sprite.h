@@ -3,32 +3,35 @@
 
 #include "gba_typedefs.h"
 #include "gba_objects.h"
+#include "animation.h"
 
 //TODO: Affine Sprites
 
 //struct for a object that makes a sprite
 typedef struct {
-    int offsetX;
-    int offsetY;
-    u32 offsetTileID;
-    u32 format:4; //size + shape of the object
-} SpriteObj;
+    s32 offsetX;
+    s32 offsetY;
+    u16 offsetTileID;
+    u8 format; //size + shape of the object
+} ALIGN4 SpriteObj;
 
 //struct for the sprite
 typedef struct {
-    u32 xPos;
-    u32 yPos;
-    u32 hFlip;
-    u32 vFlip;
-    u32 spritePriority; //aka oam ID 0 - 128
-    u16 bgPriority;
+    u16 xPos;
+    u16 yPos;
+    AnimatedSprite *currentAnim;
+    u8 isActive;
+    u8 hFlip;
+    u8 vFlip;
+    u8 spritePriority;
+    u8 bgPriority;
     u16 paletteNum;
+    u8 numOfObjs;
     u16 tileID;
-    u32 numOfObjs;
     SpriteObj *sprObj;
-} Sprite;
+} ALIGN4 Sprite;
 
-//struct for the sprite node. this deals with object priority in oam and other things
+//struct for the sprite linked list
 struct SpriteListNode {
     Sprite *spritePtr;
     struct SpriteListNode *next;
@@ -39,20 +42,42 @@ struct SpriteListNode {
   in the order defined by the sprite's "spritePriority" variable.*/
 Sprite *sprite_create(
     struct SpriteListNode **spriteNode,
-    u32 xPos, u32 yPos,
+    u16 xPos,
+    u16 yPos,
     u16 tileID,
     u16 palNum,
-    u16 bgPriority,
-    u32 spritePriority,
-    u32 numOfObjs
+    u8 bgPriority,
+    u8 spritePriority,
+    u8 numOfObjs,
+    SpriteObj *sprObj
 );
 
 /*Allocates memory for a new sprite node and adds it in the sprite list
   in the order defined by the sprite's "spritePriority" variable.*/
 struct SpriteListNode *sprite_add_to_list(struct SpriteListNode *head, Sprite *sprite);
 
+struct SpriteListNode *sprite_remove_from_list(struct SpriteListNode *head, Sprite *sprite);
+
 /*Adds all objects of each sprite in the sprite list node to the oam buffer*/
 void sprite_add_list_to_oam_buffer(struct SpriteListNode *head);
+
+
+void sprite_render_animation(Sprite *sprite, u32 duration);
+
+INLINE void sprite_set_animation(Sprite *sprite, AnimatedSprite *newAnim)
+{
+    if (sprite->currentAnim != newAnim) {
+        sprite->currentAnim = newAnim;
+        sprite->currentAnim->animTimer = 0;
+        sprite->currentAnim->animIndex = 0;
+    }
+}
+
+INLINE void sprite_load_oam(Sprite *sprite, const SpriteObj *oam_data, u32 count)
+{
+    sprite->numOfObjs = count;
+    sprite->sprObj = (SpriteObj*)oam_data;
+}
 
 /*return a OBJ_ATTR with the attributes defined by the sprite object on
   the index defined in "objectNum"*/

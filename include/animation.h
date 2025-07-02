@@ -2,16 +2,19 @@
 #define ANIMATION_H
 
 #include "gba_typedefs.h"
-#include "gba_tiles.h"
-#include "sprite.h"
+#include "data.h"
 
+//animation for sprites (modifies specifically tiles and spriteObj)
 typedef struct {
-    int numOfFrames;
-    int isLoop;
-    int *frameDuration;
-    Tileset *frameTiles;
-} AnimatedTiles;
+    u32 animIndex;
+    u32 animTimer;
+    u8 isLoop;
+    const u32 numOfFrames;
+    const u32 *extraDuration;
+    const Data *tileData;
+    const Data *sprObjData;
+} ALIGN4 AnimatedSprite;
 
-void animation_tiles_play(const AnimatedTiles animTileset);
+void animation_update_frame(AnimatedSprite *anim, u32 duration);
 
 #endif

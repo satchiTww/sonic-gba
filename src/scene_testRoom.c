@@ -3,23 +3,18 @@
 #include "stages.h"
 #include "camera.h"
 #include "player.h"
-#include "animation.h"
-#include "data/gfx/backgrounds/TZ_bg0.h"
-#include "data/gfx/sprites/teto/teto_pal.h"
-#include "data/animations/teto/teto_run.h"
+#include "data/gfx/backgrounds/TestZoneBG0.h"
+#include "data/gfx/level_layout/TestZoneLvlLayout.h"
 
 static Camera *camera;
-
 static Player *player;
-
-static Sprite *sprite;
 
 static struct SpriteListNode *sprNode;
 
-static void move_bg0();
-static void move_bg1();
+static void move_bg0(void);
+static void move_bg1(void);
 
-static void test_room_init()
+static void test_room_init(void)
 {
     //Display setup
     REG_DISPCNT =
@@ -37,9 +32,9 @@ static void test_room_init()
         BGCNT_SCRNBLOCK(28) |
         BGCNT_SIZE0
     ;
-    palette_load(TZ_bg0Pal, TZ_bg0PalLen, 0);
-    tiles_load(TZ_bg0Tiles, TZ_bg0TilesLen, 0, 0);
-    tiles_load_tilemap(TZ_bg0Map, TZ_bg0MapLen, 28);
+    palette_load(TestZoneBG0Pal, TestZoneBG0PalLen, 0);
+    tiles_load(TestZoneBG0Tiles, TestZoneBG0TilesLen, 0, 0);
+    tiles_load_tilemap(TestZoneBG0Map, TestZoneBG0MapLen, 28);
 
     /*Background 1 Setup*/
     REG_BG1CNT =
@@ -48,50 +43,31 @@ static void test_room_init()
         BGCNT_SCRNBLOCK(29) |
         BGCNT_SIZE0
     ;
-    palette_load(TestZonePal, TestZonePalLen, 2);
-    tiles_load(TestZoneTiles, TestZoneTilesLen, 0, 2);
+    palette_load(TestZoneLvlLayoutPal, TestZoneLvlLayoutPalLen, 2);
+    tiles_load(TestZoneLvlLayoutTiles, TestZoneLvlLayoutTilesLen, 0, 2);
 
     //oam setup
-    obj_oam_setup();
-
-    //sprites
-    palette_load(teto_pal, teto_palLen, PAL_OBJ_INDEX);
-    sprite = sprite_create(&sprNode, 0, 0, 0, 0, 0, 12, 2);
-    sprite->sprObj[0].format = OBJ_32x32;
-    sprite->sprObj[1].format = OBJ_32x16;
-    sprite->sprObj[1].offsetY = 32;
-    sprite->sprObj[1].offsetTileID = 16;
+    obj_init_oam();
 
     camera = camera_create(0, 64);
-    player = player_create(FIXED8(48, 0), FIXED8(144, 0), AIRBORNE);
+    player = player_create(FIXED8(48, 0), FIXED8(177, 0), AIRBORNE);
 }
 
-static void test_room_update()
+static void test_room_update(void)
 {
     player_routine(player, &testZone, camera);
 
     camera_clamp(camera, 0, testZone.mapWidth - SCREEN_WIDTH, 0, testZone.mapHeight - SCREEN_HEIGHT);
 
-    sprite->xPos = (fixed8_to_int(player->xPos) - camera->xPos) - 15;
-    sprite->yPos = (fixed8_to_int(player->yPos) - camera->yPos) - 17;
-    /*
-    sprite_update(sprite);
-    */
-
-    if (key_hit(KEY_A)) {
-        Sprite *sp = sprite_create(&sprNode, 0, 0, 2, 0, 2, 0, 5);
-    }
-   
-    animation_tiles_play(animTilesTetoRun);
-
     move_bg1();
     move_bg0();
 
+
     sprite_add_list_to_oam_buffer(sprNode);
-    obj_update_oam(gObjCount);
+    obj_update_oam();
 }
 
-static void test_room_leave()
+static void test_room_leave(void)
 {
     camera_destroy(camera);
     player_destroy(player);
@@ -104,7 +80,7 @@ Scene testRoom=
     .leave = test_room_leave
 };
 
-static void move_bg0()
+static void move_bg0(void)
 {
     static fixed8 bg0HScroll = 0;
     static fixed8 bg0VScroll = 0;
@@ -116,7 +92,7 @@ static void move_bg0()
     REG_BG0VOFS = fixed8_to_int(bg0VScroll);
 }
 
-static void move_bg1()
+static void move_bg1(void)
 {
     static fixed8 bg1HScroll = 0;
     static fixed8 bg1VScroll = 0;
