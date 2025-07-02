@@ -1,5 +1,5 @@
 #include "stages.h"
-#include "data/gfx/level_layout/TestZoneLvlLayout.h"
+#include "assets/gfx/level_layout.h"
 
 Stage testZone=
 {
