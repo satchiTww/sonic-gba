@@ -17,4 +17,9 @@
 
 #define DEFINE_BIN16(sym) extern const unsigned short sym[], _sizeof_##sym[]
 
+#define DEFINE_GBA_BG16(sym) \
+    DEFINE_BIN16(sym##Tiles); \
+    DEFINE_BIN16(sym##Map); \
+    DEFINE_BIN16(sym##Pal) \
+
 #endif

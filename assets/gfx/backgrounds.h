@@ -3,9 +3,6 @@
 
 #include "assets/assets.h"
 
-DEFINE_BIN16(bg0Tiles);
-DEFINE_BIN16(bg0Map);
-DEFINE_BIN16(bg0Pal);
-
+DEFINE_GBA_BG16(bg0);
 
 #endif
