@@ -12,16 +12,15 @@ INCS         := include gba/include .
 SRC_DIR      := src
 SRC_FILES    := $(wildcard $(SRC_DIR)/*.c)
 
-DATA_DIR     := data
-DATA_FILES   := $(shell find $(DATA_DIR) -name '*.c')
-DATA_FILES   += $(shell find $(DATA_DIR) -name '*.s')
+ASSETS_DIR   := assets
+ASSETS_FILES := $(wildcard $(ASSETS_DIR)/*.c)
 
 BUILD_DIR    := build
 OBJ_FILES    := $(SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
-OBJ_FILES    += $(DATA_FILES:$(DATA_DIR)/%.c=$(BUILD_DIR)/%.o)
+OBJ_FILES    += $(ASSETS_FILES:$(ASSETS_DIR)/%.c=$(BUILD_DIR)/%.o)
 DEPS         := $(OBJ_FILES:.o=.d)
 
-VPATH        := $(SRC_DIR) $(DATA_DIR)
+VPATH        := $(SRC_DIR) $(ASSETS_DIR)
 
 ARCH         := -mthumb -mthumb-interwork
 SPECS        := -specs=gba.specs

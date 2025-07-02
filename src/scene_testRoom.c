@@ -3,8 +3,8 @@
 #include "stages.h"
 #include "camera.h"
 #include "player.h"
-#include "data/gfx/backgrounds/TestZoneBG0.h"
-#include "data/gfx/level_layout/TestZoneLvlLayout.h"
+#include "assets/gfx/backgrounds.h"
+#include "assets/gfx/level_layout.h"
 
 static Camera *camera;
 static Player *player;
@@ -32,9 +32,9 @@ static void test_room_init(void)
         BGCNT_SCRNBLOCK(28) |
         BGCNT_SIZE0
     ;
-    palette_load(TestZoneBG0Pal, TestZoneBG0PalLen, 0);
-    tiles_load(TestZoneBG0Tiles, TestZoneBG0TilesLen, 0, 0);
-    tiles_load_tilemap(TestZoneBG0Map, TestZoneBG0MapLen, 28);
+    palette_load(bg0Pal, (u32)_sizeof_bg0Pal, 0);
+    tiles_load(bg0Tiles, (u32)_sizeof_bg0Tiles, 0, 0);
+    tiles_load_tilemap(bg0Map, (u32)_sizeof_bg0Map, 28);
 
     /*Background 1 Setup*/
     REG_BG1CNT =
@@ -43,8 +43,8 @@ static void test_room_init(void)
         BGCNT_SCRNBLOCK(29) |
         BGCNT_SIZE0
     ;
-    palette_load(TestZoneLvlLayoutPal, TestZoneLvlLayoutPalLen, 2);
-    tiles_load(TestZoneLvlLayoutTiles, TestZoneLvlLayoutTilesLen, 0, 2);
+    palette_load(test_zone_layoutPal, (u32)_sizeof_test_zone_layoutPal, 2);
+    tiles_load(test_zone_layoutTiles, (u32)_sizeof_test_zone_layoutTiles, 0, 2);
 
     //oam setup
     obj_init_oam();
@@ -61,7 +61,6 @@ static void test_room_update(void)
 
     move_bg1();
     move_bg0();
-
 
     sprite_add_list_to_oam_buffer(sprNode);
     obj_update_oam();
