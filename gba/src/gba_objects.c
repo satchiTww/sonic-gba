@@ -1,7 +1,6 @@
 #include "gba_objects.h"
 
-SEC_EWRAM
-OBJ_ATTR oam_buffer[OAM_MAX_ENTRIES];
+OBJ_ATTR oam_buffer[OAM_MAX_ENTRIES] SEC_EWRAM;
 
 void obj_init_oam()
 {

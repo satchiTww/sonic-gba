@@ -2,6 +2,10 @@
 #include "player.h"
 #include <stdlib.h>
 
+static fixed8 gravity = FIXED8(0, 53);
+
+/*==========PLAYER VARIABLES===========================*/
+//TODO: Set variables specific to different characters
 static int playerWidth = 10;
 static int playerHeight = 19;
 
@@ -9,20 +13,21 @@ static fixed8 playerAcc = FIXED8(0, 14);
 static fixed8 playerFric = FIXED8(0, 14);
 static fixed8 playerAirAcc = FIXED8(0, 24);
 
-static fixed8 gravity = FIXED8(0, 53);
-
 static fixed8 playerMaxSpeed = FIXED8(6, 0);
 static fixed8 playerMaxVerticalSpeed = FIXED8(16, 0);
 
-static void player_normal_move_right(Player *player);
-static void player_normal_move_left(Player *player);
-static void player_normal_friction(Player *player);
-static void player_airborne_move_right(Player *player);
-static void player_airborne_move_left(Player *player);
-static void player_airborne_airdrag(Player *player);
-static void player_airborne_gravity(Player *player);
-static void player_bounds_collision(Player *player);
-static void player_update_position(Player *player);
+/*==========PRIVATE FUNCTIONS===================*/
+INLINE void player_normal_move_right(Player *player);
+INLINE void player_normal_move_left(Player *player);
+INLINE void player_normal_friction(Player *player);
+INLINE void player_airborne_move_right(Player *player);
+INLINE void player_airborne_move_left(Player *player);
+INLINE void player_airborne_airdrag(Player *player);
+INLINE void player_airborne_gravity(Player *player);
+INLINE void player_bounds_collision(Player *player);
+INLINE void player_update_position(Player *player);
+
+/*=============FUNCTIONS=========================*/
 
 Player *player_create(fixed8 xPos, fixed8 yPos, playerState state)
 {
@@ -37,8 +42,7 @@ Player *player_create(fixed8 xPos, fixed8 yPos, playerState state)
     return player;
 }
 
-//all the player gameplay/mechanics runs here each frame
-void player_routine(Player *player, Stage *stage, Camera *camera)
+void player_routine(Player *player)
 {
     switch (player->state)
     {
@@ -61,12 +65,6 @@ void player_routine(Player *player, Stage *stage, Camera *camera)
             player_airborne_move_left(player);
         
         player_airborne_airdrag(player);
-        
-        camera_follow_target(
-            camera,
-            fixed8_to_int(player->xPos + player->xSpeed),
-            fixed8_to_int(player->yPos + player->ySpeed)
-        );
 
         player_update_position(player);
         
@@ -82,10 +80,9 @@ void player_destroy(Player *player)
     player = NULL;
 }
 
+/*=================PRIVATE FUNCTIONS==========================*/
 
-
-
-static void player_normal_move_right(Player *player)
+INLINE void player_normal_move_right(Player *player)
 {
     if (player->xSpeed < playerMaxSpeed) {
         player->xSpeed += playerAcc;
@@ -95,7 +92,7 @@ static void player_normal_move_right(Player *player)
     }
 }
 
-static void player_normal_move_left(Player *player)
+INLINE void player_normal_move_left(Player *player)
 {
     if (player->xSpeed > -playerMaxSpeed) {
         player->xSpeed -= playerAcc;
@@ -105,7 +102,7 @@ static void player_normal_move_left(Player *player)
     }
 }
 
-static void player_normal_friction(Player *player)
+INLINE void player_normal_friction(Player *player)
 {
     if (player->xSpeed > 0)
         player->xSpeed -= playerFric;
@@ -113,7 +110,7 @@ static void player_normal_friction(Player *player)
         player->xSpeed += playerFric;
 }
 
-static void player_airborne_move_right(Player *player)
+INLINE void player_airborne_move_right(Player *player)
 {
     if (player->xSpeed < playerMaxSpeed) {
         player->xSpeed += playerAirAcc;
@@ -123,7 +120,7 @@ static void player_airborne_move_right(Player *player)
     }
 }
 
-static void player_airborne_move_left(Player *player)
+INLINE void player_airborne_move_left(Player *player)
 {
     if (player->xSpeed > -playerMaxSpeed) {
         player->xSpeed -= playerAirAcc;
@@ -133,21 +130,21 @@ static void player_airborne_move_left(Player *player)
     }
 }
 
-static void player_airborne_airdrag(Player *player)
+INLINE void player_airborne_airdrag(Player *player)
 {
     if (player->ySpeed < 0 && player->ySpeed > -FIXED8(4, 0)) {
         player->xSpeed -= ((player->xSpeed / FIXED8(0, 32)) / FIXED8(256, 0));
     }
 }
 
-static void player_airborne_gravity(Player *player)
+INLINE void player_airborne_gravity(Player *player)
 {
     player->ySpeed += gravity;
     if (player->ySpeed > playerMaxVerticalSpeed)
         player->ySpeed = playerMaxVerticalSpeed;
 }
 
-static void player_bounds_collision(Player *player)
+INLINE void player_bounds_collision(Player *player)
 {
     if (fixed8_to_int(player->xPos + player->xSpeed) - playerWidth < 0) {
         player->xPos = FIXED8(playerWidth, 0);
@@ -155,7 +152,7 @@ static void player_bounds_collision(Player *player)
     }
 }
 
-static void player_update_position(Player *player)
+INLINE void player_update_position(Player *player)
 {
     player->xPos += player->xSpeed;
     player->yPos += player->ySpeed;

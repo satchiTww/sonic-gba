@@ -1,4 +1,5 @@
 #include "data/spriteObj/sprObjTeto.h"
+#include "gba_objects.h"
 
 const SpriteObj teto_idle_oam00[2]=
 {

@@ -1,10 +1,13 @@
 #include "gba.h"
 #include "scenes.h"
-#include "stages.h"
 #include "camera.h"
 #include "player.h"
-#include "assets/gfx/backgrounds.h"
-#include "assets/gfx/level_layout.h"
+#include "sprite.h"
+#include "data/backgrounds.h"
+#include "data/level_layout.h"
+
+#define TEST_ROOM_WIDTH  1008
+#define TEST_ROOM_HEIGHT 224
 
 static Camera *camera;
 static Player *player;
@@ -55,9 +58,15 @@ static void test_room_init(void)
 
 static void test_room_update(void)
 {
-    player_routine(player, &testZone, camera);
+    camera_follow_target(
+        camera,
+        fixed8_to_int(player->xPos + player->xSpeed),
+        fixed8_to_int(player->yPos + player->ySpeed)
+    );
 
-    camera_clamp(camera, 0, testZone.mapWidth - SCREEN_WIDTH, 0, testZone.mapHeight - SCREEN_HEIGHT);
+    player_routine(player);
+
+    camera_clamp(camera, 0, TEST_ROOM_WIDTH - SCREEN_WIDTH, 0, TEST_ROOM_HEIGHT - SCREEN_HEIGHT);
 
     move_bg1();
     move_bg0();
@@ -102,9 +111,9 @@ static void move_bg1(void)
     REG_BG1VOFS = bg1VScroll;
 
     tiles_tilemap_scroll(
-        testZone.tilemap_data,
+        test_zone_layoutMap,
         29,
-        testZone.mapWidth / TILE_SIZE,
+        TEST_ROOM_WIDTH / TILE_SIZE,
         camera->xPos / TILE_SIZE,
         camera->yPos / TILE_SIZE
     );

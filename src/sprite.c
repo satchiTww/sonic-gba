@@ -1,6 +1,11 @@
 #include "sprite.h"
 #include "gba_tiles.h"
+#include "gba_objects.h"
 #include <stdlib.h>
+
+/*return a OBJ_ATTR with the attributes defined by the sprite object on
+  the index defined in "sprObjIndex"*/
+static OBJ_ATTR sprite_get_object(Sprite *sprite, u32 sprObjIndex);
 
 Sprite *sprite_create(
     struct SpriteListNode **spriteNode,
@@ -116,27 +121,27 @@ void sprite_render_animation(Sprite *sprite, u32 duration)
         sprite->tileID
     );
 
-    sprite_load_oam(
+    sprite_load_sprite_obj(
         sprite,
         anim->sprObjData[index].data,
         anim->sprObjData[index].size
     );
 }
 
-OBJ_ATTR sprite_get_object(Sprite *sprite, u32 objectNum)
+OBJ_ATTR sprite_get_object(Sprite *sprite, u32 sprObjIndex)
 {
     OBJ_ATTR obj;
     u16 attr0 =
-        ATTR0_YPOS(sprite->yPos + sprite->sprObj[objectNum].offsetY) +
-        ATTR0_SHAPE((sprite->sprObj[objectNum].format & 0xC) >> 2)
+        ATTR0_YPOS(sprite->yPos + sprite->sprObj[sprObjIndex].offsetY) +
+        ATTR0_SHAPE((sprite->sprObj[sprObjIndex].format & 0xC) >> 2)
     ;
     u16 attr1 =
-        ATTR1_XPOS(sprite->xPos + sprite->sprObj[objectNum].offsetX) +
+        ATTR1_XPOS(sprite->xPos + sprite->sprObj[sprObjIndex].offsetX) +
         ATTR1_FLIP(sprite->hFlip | sprite->vFlip) +
-        ATTR1_SIZE(sprite->sprObj[objectNum].format & 0x3)
+        ATTR1_SIZE(sprite->sprObj[sprObjIndex].format & 0x3)
     ;
     u16 attr2 =
-        ATTR2_TILE_ID(sprite->tileID + sprite->sprObj[objectNum].offsetTileID) +
+        ATTR2_TILE_ID(sprite->tileID + sprite->sprObj[sprObjIndex].offsetTileID) +
         ATTR2_PRIORITY(sprite->bgPriority) +
         ATTR2_PAL_ID(sprite->paletteNum)
     ;

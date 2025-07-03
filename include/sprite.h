@@ -2,7 +2,6 @@
 #define SPRITE_H
 
 #include "gba_typedefs.h"
-#include "gba_objects.h"
 #include "animation.h"
 
 //TODO: Affine Sprites
@@ -25,8 +24,8 @@ typedef struct {
     u8 vFlip;
     u8 spritePriority;
     u8 bgPriority;
-    u16 paletteNum;
     u8 numOfObjs;
+    u16 paletteNum;
     u16 tileID;
     SpriteObj *sprObj;
 } ALIGN4 Sprite;
@@ -37,6 +36,7 @@ struct SpriteListNode {
     struct SpriteListNode *next;
 };
 
+/*======================FUNCTIONS=============================*/
 /*Allocates memory for a sprite and for all its objects, 
   define its main member variables and add it to the given "spriteNode" variable,
   in the order defined by the sprite's "spritePriority" variable.*/
@@ -61,26 +61,21 @@ struct SpriteListNode *sprite_remove_from_list(struct SpriteListNode *head, Spri
 /*Adds all objects of each sprite in the sprite list node to the oam buffer*/
 void sprite_add_list_to_oam_buffer(struct SpriteListNode *head);
 
-
 void sprite_render_animation(Sprite *sprite, u32 duration);
 
 INLINE void sprite_set_animation(Sprite *sprite, AnimatedSprite *newAnim)
 {
-    if (sprite->currentAnim != newAnim) {
-        sprite->currentAnim = newAnim;
-        sprite->currentAnim->animTimer = 0;
-        sprite->currentAnim->animIndex = 0;
-    }
+    if (sprite->currentAnim == newAnim) return;
+
+    sprite->currentAnim = newAnim;
+    sprite->currentAnim->animTimer = 0;
+    sprite->currentAnim->animIndex = 0;
 }
 
-INLINE void sprite_load_oam(Sprite *sprite, const SpriteObj *oam_data, u32 count)
+INLINE void sprite_load_sprite_obj(Sprite *sprite, const SpriteObj *sprObj_data, u32 sprObj_count)
 {
-    sprite->numOfObjs = count;
-    sprite->sprObj = (SpriteObj*)oam_data;
+    sprite->numOfObjs = sprObj_count;
+    sprite->sprObj = (SpriteObj*)sprObj_data;
 }
-
-/*return a OBJ_ATTR with the attributes defined by the sprite object on
-  the index defined in "objectNum"*/
-OBJ_ATTR sprite_get_object(Sprite *sprite, u32 objectNum);
 
 #endif

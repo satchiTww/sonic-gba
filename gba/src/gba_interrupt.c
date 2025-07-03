@@ -33,7 +33,7 @@ void irq_master_handler(void)
     while (pending)
     {
         for (int i = 0; i < 14; i++) {
-            u16 mask = (1u << i);
+            u16 mask = (1 << i);
             if (pending & mask) {
                 //call registered callback, if any
                 if (irq_callbacks[i]) {
@@ -44,7 +44,6 @@ void irq_master_handler(void)
                 REG_IF = mask;
                 REG_IFBIOS |= mask;
 
-                //Remove from pending to avoid infinite loop
                 pending &= ~mask;
             }
         }
