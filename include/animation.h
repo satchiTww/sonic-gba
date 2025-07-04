@@ -2,19 +2,21 @@
 #define ANIMATION_H
 
 #include "gba_typedefs.h"
-#include "data.h"
 
-//animation for sprites (modifies specifically tiles and spriteObj)
 typedef struct {
-    u32 animIndex;
-    u32 animTimer;
+    const void *sprObjData;
+    u32 sprObjLenght;
+    const void *tileData;
+    u32 tileLenght;
+    u32 extraDuration;
+} AnimSpriteFrame;
+
+typedef struct {
     u8 isLoop;
-    const u32 numOfFrames;
-    const u32 *extraDuration;
-    const Data *tileData;
-    const Data *sprObjData;
+    u32 numOfFrames;
+    AnimSpriteFrame *frames;
 } ALIGN4 AnimatedSprite;
 
-void animation_update_frame(AnimatedSprite *anim, u32 duration);
+void animation_update_frame(AnimatedSprite *anim, u32 duration, u16 *timer, u16 *index);
 
 #endif

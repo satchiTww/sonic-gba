@@ -1,5 +1,6 @@
 #include "gba.h"
 #include "player.h"
+#include "math_func.h"
 #include <stdlib.h>
 
 static fixed8 gravity = FIXED8(0, 53);
@@ -10,6 +11,7 @@ static int playerWidth = 10;
 static int playerHeight = 19;
 
 static fixed8 playerAcc = FIXED8(0, 14);
+static fixed8 playerDecel = FIXED8(0, 128);
 static fixed8 playerFric = FIXED8(0, 14);
 static fixed8 playerAirAcc = FIXED8(0, 24);
 
@@ -17,7 +19,9 @@ static fixed8 playerMaxSpeed = FIXED8(6, 0);
 static fixed8 playerMaxVerticalSpeed = FIXED8(16, 0);
 
 /*==========PRIVATE FUNCTIONS===================*/
+INLINE void player_decelerate_right(Player *player);
 INLINE void player_normal_move_right(Player *player);
+INLINE void player_decelerate_left(Player *player);
 INLINE void player_normal_move_left(Player *player);
 INLINE void player_normal_friction(Player *player);
 INLINE void player_airborne_move_right(Player *player);
@@ -39,21 +43,37 @@ Player *player_create(fixed8 xPos, fixed8 yPos, playerState state)
     player->yPos = yPos;
     player->state = state;
 
+    //player->sprite = sprite_create(gSpriteNode, 0, 0, 0, 0, 0, 0, 1, (SpriteObj*)0);
+
     return player;
 }
 
-void player_routine(Player *player)
+void player_routine(Player *player, Camera *camera)
 {
     switch (player->state)
     {
     case NORMAL:
-        if (key_is_down(KEY_RIGHT))
+        if (key_is_down(KEY_RIGHT)) {
+            if (player->xSpeed < 0)
+                player_decelerate_right(player);
+            
             player_normal_move_right(player);
-        if (key_is_down(KEY_LEFT))
+        }
+        if (key_is_down(KEY_LEFT)) {
+            if (player->xSpeed > 0)
+                player_decelerate_left(player);
+            
             player_normal_move_left(player);
-        if (!key_is_down(KEY_RIGHT | KEY_LEFT))
+        }
+        if (!key_is_down(KEY_RIGHT | KEY_LEFT)) {
             player_normal_friction(player);
-        
+        }
+        camera_follow_target(
+            camera,
+            fixed8_to_int(player->xPos + player->xSpeed),
+            fixed8_to_int(player->yPos + player->ySpeed)
+        );
+
         player_update_position(player);
         break;
     case ROLLING:
@@ -82,6 +102,13 @@ void player_destroy(Player *player)
 
 /*=================PRIVATE FUNCTIONS==========================*/
 
+INLINE void player_decelerate_right(Player *player)
+{
+    player->xSpeed += playerDecel;
+    if (player->xSpeed >= 0)
+        player->xSpeed = FIXED8(0, 128);
+}
+
 INLINE void player_normal_move_right(Player *player)
 {
     if (player->xSpeed < playerMaxSpeed) {
@@ -90,6 +117,13 @@ INLINE void player_normal_move_right(Player *player)
             player->xSpeed = playerMaxSpeed;
         }
     }
+}
+
+INLINE void player_decelerate_left(Player *player)
+{
+    player->xSpeed -= playerDecel;
+    if (player->xSpeed <= 0)
+        player->xSpeed = -FIXED8(0, 128);
 }
 
 INLINE void player_normal_move_left(Player *player)
@@ -104,10 +138,7 @@ INLINE void player_normal_move_left(Player *player)
 
 INLINE void player_normal_friction(Player *player)
 {
-    if (player->xSpeed > 0)
-        player->xSpeed -= playerFric;
-    if (player->xSpeed < 0)
-        player->xSpeed += playerFric;
+    player->xSpeed -= MIN(ABS(player->xSpeed), playerFric) * SIGN(player->xSpeed);
 }
 
 INLINE void player_airborne_move_right(Player *player)

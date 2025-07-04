@@ -12,8 +12,10 @@ INCS         := include gba/include .
 SRC_DIR      := src
 SRC_FILES    := $(shell find $(SRC_DIR) -name '*.c')
 
-DATA_DIR   := data
-DATA_FILES := $(shell find $(DATA_DIR) -name '*.c')
+DATA_DIR     := data
+DATA_FILES   := $(shell find $(DATA_DIR) -name '*.c')
+DATA_BIN_DIR := $(DATA_DIR)/bin
+DATA_BIN_FILES := $(shell find $(DATA_BIN_DIR) -name '*.bin')
 
 BUILD_DIR    := build
 OBJ_FILES    := $(SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
@@ -51,6 +53,8 @@ $(BUILD_DIR)/%.o: %.c
 	$(DIR_DUP)
 	$(info Compiling $< to $@...)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/gfx_data.o: $(DATA_BIN_FILES)
 
 $(BUILD_DIR)/%.o: %.s
 	$(DIR_DUP)

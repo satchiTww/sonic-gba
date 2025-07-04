@@ -6,7 +6,7 @@
 /*=======================DISPLAY==============================*/
 #define REG_DISPCNT  *((volatile u16*)0x04000000) //Display control
 /*TODO ?: Stereoscopic mode enable*/
-#define REG_DISPSTAT *((u16*)0x04000004)          //Display Status, display interrupt enable, (LYC)
+#define REG_DISPSTAT *((volatile u16*)0x04000004) //Display Status, display interrupt enable, (LYC)
 #define REG_VCOUNT   *((volatile u16*)0x04000006) //Current display scanline position
 
 #define REG_BG0CNT   *((u16*)0x04000008)          //Background 0 control

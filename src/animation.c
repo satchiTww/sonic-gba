@@ -1,22 +1,21 @@
 #include "animation.h"
-#include "gba_dma.h"
-#include <stdlib.h>
+#include <stddef.h>
 
-void animation_update_frame(AnimatedSprite *anim, u32 duration)
+void animation_update_frame(AnimatedSprite *anim, u32 duration, u16 *timer, u16 *index)
 {
     if (anim == NULL) return;
 
-    anim->animTimer++;
+    (*timer)++;
 
-    if (anim->animTimer >= duration + anim->extraDuration[anim->animIndex]) {
-        anim->animTimer = 0;
-        anim->animIndex++;
+    if (*timer >= duration + anim->frames[*index].extraDuration) {
+        *timer = 0;
+        (*index)++;
 
-        if (anim->animIndex >= anim->numOfFrames) {
+        if (*index >= anim->numOfFrames) {
             if (anim->isLoop)
-                anim->animIndex = 0;
+                *index = 0;
             else
-                anim->animIndex = anim->numOfFrames - 1;
+                *index = anim->numOfFrames - 1;
         }
     }
 }

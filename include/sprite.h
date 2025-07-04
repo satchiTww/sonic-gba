@@ -10,6 +10,8 @@
 typedef struct {
     s32 offsetX;
     s32 offsetY;
+    s32 hFlipOffsetX;
+    s32 vFlipOffsetX;
     u16 offsetTileID;
     u8 format; //size + shape of the object
 } ALIGN4 SpriteObj;
@@ -19,6 +21,8 @@ typedef struct {
     u16 xPos;
     u16 yPos;
     AnimatedSprite *currentAnim;
+    u16 animTimer;
+    u16 animIndex;
     u8 isActive;
     u8 hFlip;
     u8 vFlip;
@@ -35,6 +39,9 @@ struct SpriteListNode {
     Sprite *spritePtr;
     struct SpriteListNode *next;
 };
+
+//globals
+extern struct SpriteListNode *gSpriteNode;
 
 /*======================FUNCTIONS=============================*/
 /*Allocates memory for a sprite and for all its objects, 
@@ -68,8 +75,8 @@ INLINE void sprite_set_animation(Sprite *sprite, AnimatedSprite *newAnim)
     if (sprite->currentAnim == newAnim) return;
 
     sprite->currentAnim = newAnim;
-    sprite->currentAnim->animTimer = 0;
-    sprite->currentAnim->animIndex = 0;
+    sprite->animTimer = 0;
+    sprite->animIndex = 0;
 }
 
 INLINE void sprite_load_sprite_obj(Sprite *sprite, const SpriteObj *sprObj_data, u32 sprObj_count)

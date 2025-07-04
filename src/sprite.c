@@ -3,6 +3,8 @@
 #include "gba_objects.h"
 #include <stdlib.h>
 
+struct SpriteListNode *gSpriteNode;
+
 /*return a OBJ_ATTR with the attributes defined by the sprite object on
   the index defined in "sprObjIndex"*/
 static OBJ_ATTR sprite_get_object(Sprite *sprite, u32 sprObjIndex);
@@ -24,6 +26,8 @@ Sprite *sprite_create(
     spr->xPos = xPos;
     spr->yPos = yPos;
     spr->currentAnim = NULL;
+    spr->animTimer = 0;
+    spr->animIndex = 0;
     spr->isActive = TRUE;
     spr->hFlip = FALSE;
     spr->vFlip = FALSE;
@@ -110,21 +114,21 @@ void sprite_render_animation(Sprite *sprite, u32 duration)
     
     AnimatedSprite *anim = sprite->currentAnim;
 
-    animation_update_frame(anim, duration);
+    animation_update_frame(anim, duration, &sprite->animTimer, &sprite->animIndex);
 
-    u32 index = anim->animIndex;
-
-    tiles_load(
-        anim->tileData[index].data,
-        anim->tileData[index].size,
-        TILE_OAM_CHARBLOCK,
-        sprite->tileID
-    );
+    u32 index = sprite->animIndex;
 
     sprite_load_sprite_obj(
         sprite,
-        anim->sprObjData[index].data,
-        anim->sprObjData[index].size
+        anim->frames[index].sprObjData,
+        anim->frames[index].sprObjLenght
+    );
+
+    tiles_load(
+        anim->frames[index].tileData,
+        anim->frames[index].tileLenght,
+        TILE_OAM_CHARBLOCK,
+        sprite->tileID
     );
 }
 
@@ -132,11 +136,12 @@ OBJ_ATTR sprite_get_object(Sprite *sprite, u32 sprObjIndex)
 {
     OBJ_ATTR obj;
     u16 attr0 =
-        ATTR0_YPOS(sprite->yPos + sprite->sprObj[sprObjIndex].offsetY) +
+        ATTR0_YPOS(sprite->yPos  + sprite->sprObj[sprObjIndex].offsetY) +
         ATTR0_SHAPE((sprite->sprObj[sprObjIndex].format & 0xC) >> 2)
     ;
+    s32 offset = sprite->hFlip == 0 ? sprite->sprObj[sprObjIndex].offsetX : sprite->sprObj[sprObjIndex].hFlipOffsetX;
     u16 attr1 =
-        ATTR1_XPOS(sprite->xPos + sprite->sprObj[sprObjIndex].offsetX) +
+        ATTR1_XPOS(sprite->xPos + offset) +
         ATTR1_FLIP(sprite->hFlip | sprite->vFlip) +
         ATTR1_SIZE(sprite->sprObj[sprObjIndex].format & 0x3)
     ;

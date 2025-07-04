@@ -1,67 +1,35 @@
-#include "animation.h"
-#include "data/spriteObj/sprObjTeto.h"
-#include "data/sprites.h"
+#include "data/include/animation_data.h"
+#include "data/include/sprite_obj_table.h"
+#include "data/include/sprite_data.h"
 
-//idle
-static const u32 idleExtraFrameDuration = 0;
-
-static const Data idleSprObj=
-{
-    .data = teto_idle_oam00,
-    .size = teto_idle_oam00_lenght,
-};
-static const Data idleTiles=
-{
-    .data = teto_idleTiles,
-    .size = (u32)_sizeof_teto_idleTiles,
+//IDLE
+static const AnimSpriteFrame idleFrames[] = {
+    { sprObj32x48, sprObj32x48Lenght, teto_idleTiles, (u32)_sizeof_teto_idleTiles, 0},
 };
 
-AnimatedSprite animSpriteTetoIdle=
-{
-    .numOfFrames = 1,
-    .isLoop = TRUE,
-    .extraDuration = (u32*)&idleExtraFrameDuration,
-    .sprObjData = (Data*)&idleSprObj,
-    .tileData = (Data*)&idleTiles,
+//walk
+static const AnimSpriteFrame walkFrames[] = {
+    {sprObj32x48, sprObj32x48Lenght, teto_walk0Tiles, (u32)_sizeof_teto_walk0Tiles, 0},
+    {sprObj32x48, sprObj32x48Lenght, teto_walk1Tiles, (u32)_sizeof_teto_walk1Tiles, 0},
+    {sprObj40x48, sprObj40x48Lenght, teto_walk2Tiles, (u32)_sizeof_teto_walk2Tiles, 0},
+    {sprObj32x48, sprObj32x48Lenght, teto_walk3Tiles, (u32)_sizeof_teto_walk3Tiles, 0},
+    {sprObj32x48, sprObj32x48Lenght, teto_walk4Tiles, (u32)_sizeof_teto_walk4Tiles, 0},
+    {sprObj32x48, sprObj32x48Lenght, teto_walk5Tiles, (u32)_sizeof_teto_walk5Tiles, 0},
+    {sprObj32x48, sprObj32x48Lenght, teto_walk6Tiles, (u32)_sizeof_teto_walk6Tiles, 0},
+    {sprObj32x48, sprObj32x48Lenght, teto_walk7Tiles, (u32)_sizeof_teto_walk7Tiles, 0},
 };
 
-//run
-static const u32 runExtraFrameDuration[4] = {0, 0, 0, 0};
-
-static const Data runSprObj[4]=
-{
-    [0].data = teto_run_oam,
-    [0].size = teto_run_oam_lenght,
-
-    [1].data = teto_run_oam,
-    [1].size = teto_run_oam_lenght,
-
-    [2].data = teto_run_oam,
-    [2].size = teto_run_oam_lenght,
-
-    [3].data = teto_run_oam,
-    [3].size = teto_run_oam_lenght,
-};
-static const Data runTiles[4]=
-{
-    [0].data = teto_run0Tiles,
-    [0].size = (u32)_sizeof_teto_run0Tiles,
-
-    [1].data = teto_run1Tiles,
-    [1].size = (u32)_sizeof_teto_run0Tiles,
-
-    [2].data = teto_run2Tiles,
-    [2].size = (u32)_sizeof_teto_run0Tiles,
-
-    [3].data = teto_run3Tiles,
-    [3].size = (u32)_sizeof_teto_run0Tiles,
+//RUN
+static const AnimSpriteFrame runFrames[] = {
+    { sprObj32x40, sprObj32x40Lenght, teto_run0Tiles, (u32)_sizeof_teto_run0Tiles, 0},
+    { sprObj32x40, sprObj32x40Lenght, teto_run1Tiles, (u32)_sizeof_teto_run1Tiles, 0},
+    { sprObj32x40, sprObj32x40Lenght, teto_run2Tiles, (u32)_sizeof_teto_run2Tiles, 0},
+    { sprObj32x40, sprObj32x40Lenght, teto_run3Tiles, (u32)_sizeof_teto_run3Tiles, 0},
 };
 
-AnimatedSprite animSpriteTetoRun=
-{
-    .numOfFrames = 4,
-    .isLoop = TRUE,
-    .extraDuration = (u32*)runExtraFrameDuration,
-    .sprObjData = (Data*)runSprObj,
-    .tileData = (Data*)runTiles,
+//ANIMATIONS
+AnimatedSprite animTeto[NUM_TETO_ANIMS] = {
+    [ANIM_TETO_IDLE] = {TRUE, 1, (AnimSpriteFrame*)idleFrames},
+    [ANIM_TETO_WALK] = {TRUE, 8, (AnimSpriteFrame*)walkFrames},
+    [ANIM_TETO_RUN] = {TRUE, 4, (AnimSpriteFrame*)runFrames},
 };
