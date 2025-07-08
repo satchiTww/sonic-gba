@@ -7,7 +7,7 @@ typedef struct {
     void (*leave)(void);
 } Scene;
 
-#define MAX_SCENES 100 //temp value
+#define MAX_SCENES 32 //temp value
 
 extern Scene testRoom;
 
