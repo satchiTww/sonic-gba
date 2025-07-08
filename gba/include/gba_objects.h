@@ -29,6 +29,9 @@ typedef struct {
 
 extern OBJ_ATTR oam_buffer[OAM_MAX_ENTRIES];
 
+extern int obj_width_lookup[16];
+extern int obj_height_lookup[16];
+
 //Attribute 0 bits
 #define ATTR0_YPOS(y)          ((y) & 0x00FF)
 #define ATTR0_MODE(m)          (((m) << 8) & 0x0300)
@@ -100,6 +103,16 @@ INLINE void obj_update_oam()
 {
     dma3_cpy(OAM_MEM, oam_buffer, OAM_MAX_ENTRIES * 2, DMA_CPY32);
     obj_clear_oam_buffer();
+}
+
+INLINE u8 obj_get_width(u8 format)
+{
+    return obj_width_lookup[format];
+}
+
+INLINE u8 obj_get_height(u8 format)
+{
+    return obj_height_lookup[format];
 }
 
 #endif
