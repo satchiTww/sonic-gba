@@ -3,6 +3,8 @@
 
 #include "gba_typedefs.h"
 
+#define INTR_COUNT 14
+
 void irq_init(void);
 void irq_reg_handler(u16 irq_mask, void (*callback)(void));
 void irq_remove_handler(u16 irq_mask);

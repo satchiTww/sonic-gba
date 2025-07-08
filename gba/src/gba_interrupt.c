@@ -1,10 +1,11 @@
 #include "gba_registers.h"
+#include "gba_interrupt.h"
 
-static void (*irq_callbacks[14])(void) = { 0 };
+static void (*irq_callbacks[INTR_COUNT])(void) = { 0 };
 
 void irq_reg_handler(u16 irq_mask, void (*callback)(void))
 {
-    for (int i = 0; i < 14; i++) {
+    for (int i = 0; i < INTR_COUNT; i++) {
         if (irq_mask == (1 << i)) {
             irq_callbacks[i] = callback;
             return;
@@ -14,7 +15,7 @@ void irq_reg_handler(u16 irq_mask, void (*callback)(void))
 
 void irq_remove_handler(u16 irq_mask)
 {
-    for (int i = 0; i < 14; i++) {
+    for (int i = 0; i < INTR_COUNT; i++) {
         if (irq_mask == (1 << i)) {
             irq_callbacks[i] = 0;
             return;
@@ -32,7 +33,7 @@ void irq_master_handler(void)
     //Loop until all pending bits are handled
     while (pending)
     {
-        for (int i = 0; i < 14; i++) {
+        for (int i = 0; i < INTR_COUNT; i++) {
             u16 mask = (1 << i);
             if (pending & mask) {
                 //call registered callback, if any
