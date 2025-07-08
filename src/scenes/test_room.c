@@ -20,6 +20,8 @@ static void move_bg1(void);
 
 Sprite *sprTeto;
 
+struct SpriteListNode *spriteNode;
+
 static void test_room_init(void)
 {
     //Display setup
@@ -57,10 +59,10 @@ static void test_room_init(void)
     //oam setup
     obj_init_oam();
 
-    sprTeto = sprite_create(&gSpriteNode, 0, 0, 0, 0, 0, 0, 1, (SpriteObj*)0);
+    sprTeto = sprite_create(&spriteNode, 0, 0, 0, 0, 0, 0, 1, (ObjShape*)0);
 
     camera = camera_create(0, 64);
-    player = player_create(FIXED8(48, 0), FIXED8(190, 0), NORMAL);
+    player = player_create(FIXED8(48, 0), FIXED8(188, 0), NORMAL);
 }
 
 static void test_room_update(void)
@@ -69,24 +71,31 @@ static void test_room_update(void)
 
     camera_clamp(camera, 0, TEST_ROOM_WIDTH - SCREEN_WIDTH, 0, TEST_ROOM_HEIGHT - SCREEN_HEIGHT);
 
-    int tetoOffsetX = 17;
-    int tetoOffsetY = 30;
+    sprTeto->xPos = fixed8_to_int(player->xPos) - camera->xPos;
+    sprTeto->yPos = fixed8_to_int(player->yPos) - camera->yPos;
 
-    sprTeto->xPos = fixed8_to_int(player->xPos) - camera->xPos - tetoOffsetX;
-    sprTeto->yPos = fixed8_to_int(player->yPos) - camera->yPos - tetoOffsetY;
-
-
-    int durationRun = MAX(0, 8 - ABS(fixed8_to_int(player->xSpeed)));
+    int tetoAnimDuration = 0;
     
-    if (key_is_down(KEY_RIGHT))
+    if (key_is_down(KEY_RIGHT)) {
         sprTeto->hFlip = FALSE;
-    if (key_is_down(KEY_LEFT))
+    }
+    if (key_is_down(KEY_LEFT)) {
         sprTeto->hFlip = TRUE;
+    }
+    if (key_is_down(KEY_UP)) {
+        sprTeto->vFlip = TRUE;
+    }
+    if (key_is_down(KEY_DOWN)) {
+        sprTeto->vFlip = FALSE;
+    }
 
-    if (ABS(player->xSpeed) >= FIXED8(6, 0)) {
+
+    tetoAnimDuration = mf_max(0, 8 - mf_abs(fixed8_to_int(player->xSpeed)));
+    
+    if (mf_abs(player->xSpeed) >= FIXED8(6, 0)) {
         sprite_set_animation(sprTeto, &animTeto[ANIM_TETO_RUN]);
     } 
-    else if (ABS(player->xSpeed) > 0) {
+    else if (mf_abs(player->xSpeed) > 0) {
         sprite_set_animation(sprTeto, &animTeto[ANIM_TETO_WALK]);
     }
     else {
@@ -96,8 +105,8 @@ static void test_room_update(void)
     move_bg1();
     move_bg0();
 
-    sprite_render_animation(sprTeto, durationRun);
-    sprite_add_list_to_oam_buffer(gSpriteNode);
+    sprite_render_animation(sprTeto, tetoAnimDuration);
+    sprite_add_list_to_oam_buffer(spriteNode);
     obj_update_oam();
 }
 
