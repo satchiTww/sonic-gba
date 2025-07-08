@@ -14,10 +14,22 @@ Camera *camera_create(int xPos, int yPos)
     return camera;
 }
 
-void camera_follow_target(Camera *camera, int targetX, int targetY)
+void camera_follow_target(Camera* camera, 
+                   int targetXpos, 
+                   int targetYpos, 
+                   int leftBorder, 
+                   int rightBorder, 
+                   int topBorder,
+                   int bottomBorder)
 {
-    camera->xPos = targetX - SCREEN_WIDTH / 2;
-    camera->yPos = targetY - SCREEN_HEIGHT / 2;
+    if (targetXpos > (camera->xPos + rightBorder))
+        camera->xPos = targetXpos - rightBorder;
+    if (targetXpos < (camera->xPos + leftBorder))
+        camera->xPos = targetXpos - leftBorder;
+    if (targetYpos > (camera->yPos + bottomBorder))
+        camera->yPos = targetYpos - bottomBorder;
+    if (targetYpos < (camera->yPos + topBorder))
+        camera->yPos = targetYpos - topBorder;
 }
 
 //clamp the camera position to a minimum x and y position and a maximum x and y position
