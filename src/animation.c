@@ -1,13 +1,13 @@
 #include "animation.h"
 #include <stddef.h>
 
-void animation_update_frame(AnimatedSprite *anim, u32 duration, u16 *timer, u16 *index)
+void animation_update_frame(AnimatedSprite *anim, u32 duration, u32 *timer, u16 *index)
 {
     if (anim == NULL) return;
 
     (*timer)++;
 
-    if (*timer >= duration + anim->frames[*index].extraDuration) {
+    if (*timer >= duration + anim->frames[*index].delay) {
         *timer = 0;
         (*index)++;
 
