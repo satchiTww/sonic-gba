@@ -3,25 +3,26 @@
 
 #include "gba_typedefs.h"
 #include "animation.h"
+#include "gba_objects.h"
 
 //TODO: Affine Sprites
 
 //struct for a object that makes a sprite
 typedef struct {
-    s32 offsetX;
-    s32 offsetY;
-    s32 hFlipOffsetX;
-    s32 vFlipOffsetX;
+    s16 offsetX;
+    s16 offsetY;
     u16 offsetTileID;
-    u8 format; //size + shape of the object
-} ALIGN4 SpriteObj;
+    u16 format; //size + shape of the object
+} ObjShape;
 
 //struct for the sprite
 typedef struct {
     u16 xPos;
     u16 yPos;
+    u16 xOffset;
+    u16 yOffset;
     AnimatedSprite *currentAnim;
-    u16 animTimer;
+    u32 animTimer;
     u16 animIndex;
     u8 isActive;
     u8 hFlip;
@@ -31,17 +32,14 @@ typedef struct {
     u8 numOfObjs;
     u16 paletteNum;
     u16 tileID;
-    SpriteObj *sprObj;
-} ALIGN4 Sprite;
+    ObjShape *objShape;
+} Sprite;
 
 //struct for the sprite linked list
 struct SpriteListNode {
     Sprite *spritePtr;
     struct SpriteListNode *next;
 };
-
-//globals
-extern struct SpriteListNode *gSpriteNode;
 
 /*======================FUNCTIONS=============================*/
 /*Allocates memory for a sprite and for all its objects, 
@@ -56,7 +54,7 @@ Sprite *sprite_create(
     u8 bgPriority,
     u8 spritePriority,
     u8 numOfObjs,
-    SpriteObj *sprObj
+    ObjShape *objShape
 );
 
 /*Allocates memory for a new sprite node and adds it in the sprite list
@@ -79,10 +77,10 @@ INLINE void sprite_set_animation(Sprite *sprite, AnimatedSprite *newAnim)
     sprite->animIndex = 0;
 }
 
-INLINE void sprite_load_sprite_obj(Sprite *sprite, const SpriteObj *sprObj_data, u32 sprObj_count)
+INLINE void sprite_load_obj_shape(Sprite *sprite, const ObjShape *objShapeData, u32 obj_count)
 {
-    sprite->numOfObjs = sprObj_count;
-    sprite->sprObj = (SpriteObj*)sprObj_data;
+    sprite->numOfObjs = obj_count;
+    sprite->objShape = (ObjShape*)objShapeData;
 }
 
 #endif
