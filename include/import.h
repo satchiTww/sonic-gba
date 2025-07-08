@@ -4,7 +4,7 @@
 /* Import a binary file */
 #define IMPORT_BIN(sect, file, sym) __asm ( \
     ".section " #sect "\n"                  \
-    ".align 2\n"                            \
+    ".align 4\n"                            \
     ".global " #sym "\n"                    \
     #sym ":\n"                              \
     ".incbin \"" file "\"\n"                \
