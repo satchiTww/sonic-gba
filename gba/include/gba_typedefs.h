@@ -23,12 +23,6 @@ typedef unsigned long u32;
 typedef signed char s8;
 typedef signed short s16;
 typedef signed long s32;
-typedef s32 fixed8;
-
-#define FIXED8(integer, fraction) (((integer) << 8) | ((fraction) & 0xFF))
-
-INLINE s32 fixed8_to_int(fixed8 x)
-{    return (x >> 8);    }
 
 typedef void (*func_ptr)(void);
 
