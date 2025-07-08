@@ -3,11 +3,9 @@
 #include "gba_objects.h"
 #include <stdlib.h>
 
-struct SpriteListNode *gSpriteNode;
-
 /*return a OBJ_ATTR with the attributes defined by the sprite object on
-  the index defined in "sprObjIndex"*/
-static OBJ_ATTR sprite_get_object(Sprite *sprite, u32 sprObjIndex);
+  the index defined in "objShapeIndex"*/
+static OBJ_ATTR sprite_get_object(const Sprite *sprite, u32 objShapeIndex);
 
 Sprite *sprite_create(
     struct SpriteListNode **spriteNode,
@@ -18,13 +16,15 @@ Sprite *sprite_create(
     u8 bgPriority,
     u8 spritePriority,
     u8 numOfObjs,
-    SpriteObj *sprObj
+    ObjShape *objShape
 )
 {
     Sprite *spr = malloc(sizeof(Sprite));
 
     spr->xPos = xPos;
     spr->yPos = yPos;
+    spr->xOffset = 0;
+    spr->yOffset = 0;
     spr->currentAnim = NULL;
     spr->animTimer = 0;
     spr->animIndex = 0;
@@ -36,7 +36,7 @@ Sprite *sprite_create(
     spr->bgPriority = bgPriority;
     spr->spritePriority = spritePriority;
     spr->numOfObjs = numOfObjs;
-    spr->sprObj = sprObj;
+    spr->objShape = objShape;
 
     *spriteNode = sprite_add_to_list(*spriteNode, spr);
 
@@ -48,22 +48,29 @@ struct SpriteListNode *sprite_add_to_list(struct SpriteListNode *head, Sprite *s
     struct SpriteListNode *newNode = (struct SpriteListNode*)malloc(sizeof(struct SpriteListNode));
 
     newNode->spritePtr = sprite;
+
     newNode->next = NULL;
+
 
     if (head == NULL || newNode->spritePtr->spritePriority < head->spritePtr->spritePriority) {
         newNode->next = head;
         return newNode;
     }
     
+
     struct SpriteListNode *prev = head;
+    
     struct SpriteListNode *curr = head->next;
+
 
     while (curr != NULL && curr->spritePtr->spritePriority <= sprite->spritePriority) {
         prev = curr;
         curr = curr->next;
     }
 
+
     newNode->next = curr;
+    
     prev->next = newNode;
 
     return head;
@@ -72,7 +79,9 @@ struct SpriteListNode *sprite_add_to_list(struct SpriteListNode *head, Sprite *s
 struct SpriteListNode *sprite_remove_from_list(struct SpriteListNode *head, Sprite *sprite)
 {
     struct SpriteListNode *curr = head;
+    
     struct SpriteListNode *prev = NULL;
+
 
     if (curr != NULL && curr->spritePtr == sprite) {
         head = curr->next;
@@ -80,15 +89,19 @@ struct SpriteListNode *sprite_remove_from_list(struct SpriteListNode *head, Spri
         return head;
     }
 
+    
     while (curr != NULL && curr->spritePtr != sprite) {
         prev = curr;
         curr = curr->next;
     }
 
+
     if (curr == NULL)
         return head;
     
+    
     prev->next = curr->next;
+
 
     free(curr);
     return head;
@@ -97,13 +110,19 @@ struct SpriteListNode *sprite_remove_from_list(struct SpriteListNode *head, Spri
 void sprite_add_list_to_oam_buffer(struct SpriteListNode *head)
 {
     u32 objCount = 0;
+
     while (head != NULL) {
-        if (head->spritePtr->isActive) {
-            for (u32 j = 0; j < head->spritePtr->numOfObjs; objCount++, j++) {
-                OBJ_ATTR obj = sprite_get_object(head->spritePtr, j);
-                oam_buffer[objCount] = obj;
+        Sprite *currSprite = head->spritePtr;
+        
+        if (currSprite->isActive) {
+            for (u32 j = 0; j < currSprite->numOfObjs; j++) {
+                
+                OBJ_ATTR obj = sprite_get_object(currSprite, j);
+                
+                oam_buffer[objCount++] = obj;
             }
         }
+
         head = head->next;
     }
 }
@@ -111,42 +130,50 @@ void sprite_add_list_to_oam_buffer(struct SpriteListNode *head)
 void sprite_render_animation(Sprite *sprite, u32 duration)
 {
     if (sprite->currentAnim == NULL) return;
-    
-    AnimatedSprite *anim = sprite->currentAnim;
 
-    animation_update_frame(anim, duration, &sprite->animTimer, &sprite->animIndex);
+    animation_update_frame(sprite->currentAnim, duration, &sprite->animTimer, &sprite->animIndex);
 
-    u32 index = sprite->animIndex;
+    AnimSpriteFrame currFrame = sprite->currentAnim->frames[sprite->animIndex];
 
-    sprite_load_sprite_obj(
+    sprite_load_obj_shape(
         sprite,
-        anim->frames[index].sprObjData,
-        anim->frames[index].sprObjLenght
+        currFrame.ObjShapeData,
+        currFrame.ObjShapeLenght
     );
 
     tiles_load(
-        anim->frames[index].tileData,
-        anim->frames[index].tileLenght,
+        currFrame.tileData,
+        currFrame.tileLenght,
         TILE_OAM_CHARBLOCK,
         sprite->tileID
     );
+
+    sprite->xOffset = sprite->hFlip ? -currFrame.offsetX : currFrame.offsetX;
+    sprite->yOffset = sprite->vFlip ? -currFrame.offsetY : currFrame.offsetY;
 }
 
-OBJ_ATTR sprite_get_object(Sprite *sprite, u32 sprObjIndex)
+OBJ_ATTR sprite_get_object(const Sprite *sprite, u32 objShapeIndex)
 {
     OBJ_ATTR obj;
+
+    ObjShape objShape = sprite->objShape[objShapeIndex];
+
+    int objOffX = sprite->hFlip ? obj_get_width(objShape.format)  - objShape.offsetX : objShape.offsetX;
+    int objOffY = sprite->vFlip ? obj_get_height(objShape.format) - objShape.offsetY : objShape.offsetY;
+
     u16 attr0 =
-        ATTR0_YPOS(sprite->yPos  + sprite->sprObj[sprObjIndex].offsetY) +
-        ATTR0_SHAPE((sprite->sprObj[sprObjIndex].format & 0xC) >> 2)
+        ATTR0_YPOS(sprite->yPos + sprite->yOffset - objOffY) +
+        ATTR0_SHAPE((objShape.format & 0xC) >> 2)
     ;
-    s32 offset = sprite->hFlip == 0 ? sprite->sprObj[sprObjIndex].offsetX : sprite->sprObj[sprObjIndex].hFlipOffsetX;
+
     u16 attr1 =
-        ATTR1_XPOS(sprite->xPos + offset) +
-        ATTR1_FLIP(sprite->hFlip | sprite->vFlip) +
-        ATTR1_SIZE(sprite->sprObj[sprObjIndex].format & 0x3)
+        ATTR1_XPOS(sprite->xPos + sprite->xOffset - objOffX) +
+        ATTR1_FLIP(sprite->hFlip | (sprite->vFlip << 1) ) +
+        ATTR1_SIZE(objShape.format & 0x3)
     ;
+    
     u16 attr2 =
-        ATTR2_TILE_ID(sprite->tileID + sprite->sprObj[sprObjIndex].offsetTileID) +
+        ATTR2_TILE_ID(sprite->tileID + objShape.offsetTileID) +
         ATTR2_PRIORITY(sprite->bgPriority) +
         ATTR2_PAL_ID(sprite->paletteNum)
     ;
