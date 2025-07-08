@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include "gba_typedefs.h"
+#include "math_func.h"
 #include "camera.h"
 #include "sprite.h"
 

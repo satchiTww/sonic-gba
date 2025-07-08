@@ -1,9 +1,14 @@
 #include "gba.h"
 #include "player.h"
-#include "math_func.h"
 #include <stdlib.h>
 
 static fixed8 gravity = FIXED8(0, 53);
+
+static int camLeftBorder     = 113;
+static int camRightBorder    = 125;
+static int camVerticalPoint  = 68;
+static int camTopBorder      = 46;
+static int camBottomBorder   = 90;
 
 /*==========PLAYER VARIABLES===========================*/
 //TODO: Set variables specific to different characters
@@ -68,10 +73,15 @@ void player_routine(Player *player, Camera *camera)
         if (!key_is_down(KEY_RIGHT | KEY_LEFT)) {
             player_normal_friction(player);
         }
+
         camera_follow_target(
             camera,
             fixed8_to_int(player->xPos + player->xSpeed),
-            fixed8_to_int(player->yPos + player->ySpeed)
+            fixed8_to_int(player->yPos + player->ySpeed),
+            camLeftBorder,
+            camRightBorder,
+            camVerticalPoint,
+            camVerticalPoint
         );
 
         player_update_position(player);
@@ -85,6 +95,16 @@ void player_routine(Player *player, Camera *camera)
             player_airborne_move_left(player);
         
         player_airborne_airdrag(player);
+
+        camera_follow_target(
+            camera,
+            fixed8_to_int(player->xPos + player->xSpeed),
+            fixed8_to_int(player->yPos + player->ySpeed),
+            camLeftBorder,
+            camRightBorder,
+            camTopBorder,
+            camBottomBorder
+        );
 
         player_update_position(player);
         
@@ -138,7 +158,7 @@ INLINE void player_normal_move_left(Player *player)
 
 INLINE void player_normal_friction(Player *player)
 {
-    player->xSpeed -= MIN(ABS(player->xSpeed), playerFric) * SIGN(player->xSpeed);
+    player->xSpeed -= mf_min(mf_abs(player->xSpeed), playerFric) * mf_sign(player->xSpeed);
 }
 
 INLINE void player_airborne_move_right(Player *player)
