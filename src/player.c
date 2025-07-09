@@ -1,8 +1,6 @@
 #include "gba.h"
-#include "player.h"
 #include <stdlib.h>
-
-static fixed8 gravity = FIXED8(0, 53);
+#include "player.h"
 
 static int camLeftBorder     = 113;
 static int camRightBorder    = 125;
@@ -10,10 +8,16 @@ static int camVerticalPoint  = 68;
 static int camTopBorder      = 46;
 static int camBottomBorder   = 90;
 
+static int animDuration;
+
+static playerCharData charData;
+
+static fixed8 gravity = FIXED8(0, 53);
+
 /*==========PLAYER VARIABLES===========================*/
 //TODO: Set variables specific to different characters
-static int playerWidth = 10;
-static int playerHeight = 19;
+static int playerWidth;
+static int playerHeight;
 
 static fixed8 playerAcc = FIXED8(0, 14);
 static fixed8 playerDecel = FIXED8(0, 128);
@@ -38,7 +42,7 @@ INLINE void player_update_position(Player *player);
 
 /*=============FUNCTIONS=========================*/
 
-Player *player_create(fixed8 xPos, fixed8 yPos, playerState state)
+Player *player_create(fixed8 xPos, fixed8 yPos, playerState state, playerCharacter character, struct SpriteListNode **sprNode)
 {
     Player *player;
 
@@ -48,7 +52,15 @@ Player *player_create(fixed8 xPos, fixed8 yPos, playerState state)
     player->yPos = yPos;
     player->state = state;
 
-    //player->sprite = sprite_create(gSpriteNode, 0, 0, 0, 0, 0, 0, 1, (SpriteObj*)0);
+    charData = playerCharTable[character];
+
+    playerWidth = charData.width;
+    playerHeight = charData.height;
+
+    //sprite load
+    player->sprite = sprite_create(sprNode, 0, 0, 0, 0, 0, 0, 1, (ObjShape*)0);
+    
+    palette_load(charData.palData, charData.palDataLenght, PAL_OAM_INDEX);
 
     return player;
 }
@@ -57,61 +69,99 @@ void player_routine(Player *player, Camera *camera)
 {
     switch (player->state)
     {
-    case NORMAL:
-        if (key_is_down(KEY_RIGHT)) {
-            if (player->xSpeed < 0)
-                player_decelerate_right(player);
-            
-            player_normal_move_right(player);
-        }
-        if (key_is_down(KEY_LEFT)) {
-            if (player->xSpeed > 0)
-                player_decelerate_left(player);
-            
-            player_normal_move_left(player);
-        }
-        if (!key_is_down(KEY_RIGHT | KEY_LEFT)) {
-            player_normal_friction(player);
-        }
+        case STATE_NORMAL:
 
-        camera_follow_target(
-            camera,
-            fixed8_to_int(player->xPos + player->xSpeed),
-            fixed8_to_int(player->yPos + player->ySpeed),
-            camLeftBorder,
-            camRightBorder,
-            camVerticalPoint,
-            camVerticalPoint
-        );
+            if (key_is_down(KEY_RIGHT)) {
 
-        player_update_position(player);
+                if (player->xSpeed < 0)
+                    player_decelerate_right(player);
+                
+                player_normal_move_right(player);
+
+            }
+            if (key_is_down(KEY_LEFT)) {
+
+                if (player->xSpeed > 0)
+                    player_decelerate_left(player);
+                
+                player_normal_move_left(player);
+
+            }
+            if (!key_is_down(KEY_RIGHT | KEY_LEFT))
+                player_normal_friction(player);
+
+            camera_follow_target(
+                camera,
+                fixed8_to_int(player->xPos + player->xSpeed),
+                fixed8_to_int(player->yPos + player->ySpeed),
+                camLeftBorder,
+                camRightBorder,
+                camVerticalPoint,
+                camVerticalPoint
+            );
+
+            player_update_position(player);
+
         break;
-    case ROLLING:
+
+        case STATE_ROLLING:
+
         break;
-    case AIRBORNE:
-        if (key_is_down(KEY_RIGHT))
-            player_airborne_move_right(player);
-        if (key_is_down(KEY_LEFT))
-            player_airborne_move_left(player);
-        
-        player_airborne_airdrag(player);
 
-        camera_follow_target(
-            camera,
-            fixed8_to_int(player->xPos + player->xSpeed),
-            fixed8_to_int(player->yPos + player->ySpeed),
-            camLeftBorder,
-            camRightBorder,
-            camTopBorder,
-            camBottomBorder
-        );
+        case STATE_AIRBORNE:
 
-        player_update_position(player);
-        
-        //player_airborne_gravity(player);
+            if (key_is_down(KEY_RIGHT))
+                player_airborne_move_right(player);
+
+            if (key_is_down(KEY_LEFT))
+                player_airborne_move_left(player);
+            
+            player_airborne_airdrag(player);
+
+            camera_follow_target(
+                camera,
+                fixed8_to_int(player->xPos + player->xSpeed),
+                fixed8_to_int(player->yPos + player->ySpeed),
+                camLeftBorder,
+                camRightBorder,
+                camTopBorder,
+                camBottomBorder
+            );
+
+            player_update_position(player);
+            
+            player_airborne_gravity(player);
+
         break;
     }
+
     player_bounds_collision(player);
+
+}
+
+void player_render(Player *player, Camera *camera)
+{
+    if (key_is_down(KEY_RIGHT))
+        player->sprite->hFlip = FALSE;
+    if (key_is_down(KEY_LEFT))
+        player->sprite->hFlip = TRUE;
+
+    player->sprite->xPos = fixed8_to_int(player->xPos) - camera->xPos;
+    player->sprite->yPos = fixed8_to_int(player->yPos) - camera->yPos;
+
+    animDuration = mf_max(0, 8 - mf_abs(fixed8_to_int(player->xSpeed)));
+
+    if (mf_abs(player->xSpeed) >= FIXED8(6, 0)) {
+        sprite_set_animation(player->sprite, &charData.playerAnim[ANIM_RUN]);
+    } 
+    else if (mf_abs(player->xSpeed) > 0) {
+        sprite_set_animation(player->sprite, &charData.playerAnim[ANIM_WALK]);
+    }
+    else {
+        sprite_set_animation(player->sprite, &charData.playerAnim[ANIM_IDLE]);
+    }
+
+    sprite_render_animation(player->sprite, animDuration);
 }
 
 void player_destroy(Player *player)

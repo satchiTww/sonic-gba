@@ -28,8 +28,8 @@ static const AnimSpriteFrame runFrames[] = {
 };
 
 //ANIMATIONS
-AnimatedSprite animTeto[NUM_TETO_ANIMS] = {
-    [ANIM_TETO_IDLE] = {TRUE, 1, (AnimSpriteFrame*)idleFrames},
-    [ANIM_TETO_WALK] = {TRUE, 8, (AnimSpriteFrame*)walkFrames},
-    [ANIM_TETO_RUN] = {TRUE, 4, (AnimSpriteFrame*)runFrames},
+AnimatedSprite animTeto[NUM_OF_PLAYER_ANIM] = {
+    [ANIM_IDLE] = {TRUE, 1, (AnimSpriteFrame*)idleFrames},
+    [ANIM_WALK] = {TRUE, 8, (AnimSpriteFrame*)walkFrames},
+    [ANIM_RUN] = {TRUE, 4, (AnimSpriteFrame*)runFrames},
 };

@@ -7,9 +7,9 @@
 #include "sprite.h"
 
 typedef enum {
-    NORMAL,
-    ROLLING,
-    AIRBORNE
+    STATE_NORMAL,
+    STATE_ROLLING,
+    STATE_AIRBORNE
 } playerState;
 
 typedef struct {
@@ -18,11 +18,39 @@ typedef struct {
     fixed8 groundSpeed;
     fixed8 groundAngle;
     playerState state;
-    Sprite sprite;
+    Sprite *sprite;
 } Player;
 
-Player *player_create(fixed8 xPos, fixed8 yPos, playerState state);
+typedef enum {
+    CHAR_SONIC,
+    CHAR_TAILS,
+    CHAR_KNUCKLES,
+    CHAR_MIKU,
+    CHAR_TETO,
+    CHAR_NERU,
+    NUM_OF_PLAYER_CHARS,
+} playerCharacter;
+
+typedef enum {
+    ANIM_IDLE,
+    ANIM_WALK,
+    ANIM_RUN,
+    NUM_OF_PLAYER_ANIM,
+} playerAnimations;
+
+typedef struct {
+    const u16 *palData;
+    int palDataLenght;
+    AnimatedSprite *playerAnim;
+    int width;
+    int height;
+} playerCharData;
+
+extern playerCharData playerCharTable[NUM_OF_PLAYER_CHARS];
+
+Player *player_create(fixed8 xPos, fixed8 yPos, playerState state, playerCharacter character, struct SpriteListNode **sprNode);
 void player_routine(Player *player, Camera *camera);
+void player_render(Player *player, Camera *camera);
 void player_destroy(Player *player);
 
 #endif

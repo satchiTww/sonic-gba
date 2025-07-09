@@ -29,8 +29,8 @@ typedef struct {
 
 extern OBJ_ATTR oam_buffer[OAM_MAX_ENTRIES];
 
-extern int obj_width_lookup[16];
-extern int obj_height_lookup[16];
+extern u8 obj_width_lookup[16];
+extern u8 obj_height_lookup[16];
 
 //Attribute 0 bits
 #define ATTR0_YPOS(y)          ((y) & 0x00FF)

@@ -6,8 +6,6 @@
 #include "data/include/bg_data.h"
 #include "data/include/level_layout.h"
 #include "sprite.h"
-#include "data/include/sprite_data.h"
-#include "data/include/animation_data.h"
 
 #define TEST_ROOM_WIDTH  1008
 #define TEST_ROOM_HEIGHT 224
@@ -17,8 +15,6 @@ static Player *player;
 
 static void move_bg0(void);
 static void move_bg1(void);
-
-Sprite *sprTeto;
 
 struct SpriteListNode *spriteNode;
 
@@ -53,16 +49,11 @@ static void test_room_init(void)
     ;
     palette_load(test_zone_layoutPal, (u32)_sizeof_test_zone_layoutPal, 2);
     tiles_load(test_zone_layoutTiles, (u32)_sizeof_test_zone_layoutTiles, 0, 2);
-
-    palette_load(teto_pal, (u32)_sizeof_teto_pal, PAL_OAM_INDEX);
     
-    //oam setup
     obj_init_oam();
 
-    sprTeto = sprite_create(&spriteNode, 0, 0, 0, 0, 0, 0, 1, (ObjShape*)0);
-
     camera = camera_create(0, 64);
-    player = player_create(FIXED8(48, 0), FIXED8(188, 0), NORMAL);
+    player = player_create(FIXED8(48, 0), FIXED8(188, 0), STATE_NORMAL, CHAR_TETO, &spriteNode);
 }
 
 static void test_room_update(void)
@@ -71,41 +62,11 @@ static void test_room_update(void)
 
     camera_clamp(camera, 0, TEST_ROOM_WIDTH - SCREEN_WIDTH, 0, TEST_ROOM_HEIGHT - SCREEN_HEIGHT);
 
-    sprTeto->xPos = fixed8_to_int(player->xPos) - camera->xPos;
-    sprTeto->yPos = fixed8_to_int(player->yPos) - camera->yPos;
-
-    int tetoAnimDuration = 0;
-    
-    if (key_is_down(KEY_RIGHT)) {
-        sprTeto->hFlip = FALSE;
-    }
-    if (key_is_down(KEY_LEFT)) {
-        sprTeto->hFlip = TRUE;
-    }
-    if (key_is_down(KEY_UP)) {
-        sprTeto->vFlip = TRUE;
-    }
-    if (key_is_down(KEY_DOWN)) {
-        sprTeto->vFlip = FALSE;
-    }
-
-
-    tetoAnimDuration = mf_max(0, 8 - mf_abs(fixed8_to_int(player->xSpeed)));
-    
-    if (mf_abs(player->xSpeed) >= FIXED8(6, 0)) {
-        sprite_set_animation(sprTeto, &animTeto[ANIM_TETO_RUN]);
-    } 
-    else if (mf_abs(player->xSpeed) > 0) {
-        sprite_set_animation(sprTeto, &animTeto[ANIM_TETO_WALK]);
-    }
-    else {
-        sprite_set_animation(sprTeto, &animTeto[ANIM_TETO_IDLE]);
-    }
+    player_render(player, camera);
 
     move_bg1();
     move_bg0();
 
-    sprite_render_animation(sprTeto, tetoAnimDuration);
     sprite_add_list_to_oam_buffer(spriteNode);
     obj_update_oam();
 }
