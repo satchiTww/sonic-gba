@@ -138,12 +138,12 @@ void sprite_render_animation(Sprite *sprite, u32 duration)
     sprite_load_obj_shape(
         sprite,
         currFrame.ObjShapeData,
-        currFrame.ObjShapeLenght
+        currFrame.ObjShapeDataLenght / 8
     );
 
     tiles_load(
         currFrame.tileData,
-        currFrame.tileLenght,
+        currFrame.tileDataLenght,
         TILE_OAM_CHARBLOCK,
         sprite->tileID
     );

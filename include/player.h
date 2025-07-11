@@ -12,15 +12,6 @@ typedef enum {
     STATE_AIRBORNE
 } playerState;
 
-typedef struct {
-    fixed8 xPos, yPos;
-    fixed8 xSpeed, ySpeed;
-    fixed8 groundSpeed;
-    fixed8 groundAngle;
-    playerState state;
-    Sprite *sprite;
-} Player;
-
 typedef enum {
     CHAR_SONIC,
     CHAR_TAILS,
@@ -37,6 +28,15 @@ typedef enum {
     ANIM_RUN,
     NUM_OF_PLAYER_ANIM,
 } playerAnimations;
+
+typedef struct {
+    fixed8 xPos, yPos;
+    fixed8 xSpeed, ySpeed;
+    fixed8 groundSpeed;
+    fixed8 groundAngle;
+    playerState state;
+    Sprite *sprite;
+} Player;
 
 typedef struct {
     const u16 *palData;

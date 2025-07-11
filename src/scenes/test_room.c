@@ -49,7 +49,7 @@ static void test_room_init(void)
     ;
     palette_load(test_zone_layoutPal, (u32)_sizeof_test_zone_layoutPal, 2);
     tiles_load(test_zone_layoutTiles, (u32)_sizeof_test_zone_layoutTiles, 0, 2);
-    
+
     obj_init_oam();
 
     camera = camera_create(0, 64);
@@ -77,12 +77,7 @@ static void test_room_leave(void)
     player_destroy(player);
 }
 
-Scene testRoom=
-{
-    .init = test_room_init,
-    .update = test_room_update,
-    .leave = test_room_leave
-};
+
 
 static void move_bg0(void)
 {
@@ -98,8 +93,8 @@ static void move_bg0(void)
 
 static void move_bg1(void)
 {
-    static fixed8 bg1HScroll = 0;
-    static fixed8 bg1VScroll = 0;
+    static int bg1HScroll = 0;
+    static int bg1VScroll = 0;
 
     bg1HScroll = camera->xPos % TILE_SIZE;
     bg1VScroll = camera->yPos % TILE_SIZE;
@@ -114,3 +109,9 @@ static void move_bg1(void)
         camera->yPos / TILE_SIZE
     );
 }
+
+Scene testRoom = {
+    .init = test_room_init,
+    .update = test_room_update,
+    .leave = test_room_leave
+};

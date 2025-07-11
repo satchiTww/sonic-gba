@@ -3,10 +3,12 @@
 
 #include "import.h"
 
+//pal
 DEFINE_BIN16(teto_pal);
 
+//-----TILES-----------
+//Teto
 DEFINE_BIN16(teto_idleTiles);
-
 DEFINE_BIN16(teto_walk0Tiles);
 DEFINE_BIN16(teto_walk1Tiles);
 DEFINE_BIN16(teto_walk2Tiles);
@@ -15,7 +17,6 @@ DEFINE_BIN16(teto_walk4Tiles);
 DEFINE_BIN16(teto_walk5Tiles);
 DEFINE_BIN16(teto_walk6Tiles);
 DEFINE_BIN16(teto_walk7Tiles);
-
 DEFINE_BIN16(teto_run0Tiles);
 DEFINE_BIN16(teto_run1Tiles);
 DEFINE_BIN16(teto_run2Tiles);

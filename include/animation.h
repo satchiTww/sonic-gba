@@ -5,12 +5,12 @@
 
 typedef struct {
     const void *ObjShapeData;
-    u32 ObjShapeLenght;
+    u32 ObjShapeDataLenght;
     const void *tileData;
-    u32 tileLenght;
+    u32 tileDataLenght;
     u16 offsetX, offsetY;
     u32 delay;
-} AnimSpriteFrame;
+} ALIGN4 AnimSpriteFrame;
 
 typedef struct {
     u8 isLoop;

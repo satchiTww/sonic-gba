@@ -28,17 +28,18 @@ static fixed8 playerMaxSpeed = FIXED8(6, 0);
 static fixed8 playerMaxVerticalSpeed = FIXED8(16, 0);
 
 /*==========PRIVATE FUNCTIONS===================*/
-INLINE void player_decelerate_right(Player *player);
-INLINE void player_normal_move_right(Player *player);
-INLINE void player_decelerate_left(Player *player);
-INLINE void player_normal_move_left(Player *player);
-INLINE void player_normal_friction(Player *player);
-INLINE void player_airborne_move_right(Player *player);
-INLINE void player_airborne_move_left(Player *player);
-INLINE void player_airborne_airdrag(Player *player);
-INLINE void player_airborne_gravity(Player *player);
-INLINE void player_bounds_collision(Player *player);
-INLINE void player_update_position(Player *player);
+INLINE void normal_move_right(Player *player);
+INLINE void normal_decelerate_right(Player *player);
+INLINE void normal_move_left(Player *player);
+INLINE void normal_decelerate_left(Player *player);
+INLINE void normal_friction(Player *player);
+INLINE void airborne_move_right(Player *player);
+INLINE void airborne_move_left(Player *player);
+INLINE void airborne_airdrag(Player *player);
+INLINE void airborne_gravity(Player *player);
+INLINE void bounds_collision(Player *player);
+INLINE void update_position(Player *player);
+
 
 /*=============FUNCTIONS=========================*/
 
@@ -74,21 +75,21 @@ void player_routine(Player *player, Camera *camera)
             if (key_is_down(KEY_RIGHT)) {
 
                 if (player->xSpeed < 0)
-                    player_decelerate_right(player);
+                    normal_decelerate_right(player);
                 
-                player_normal_move_right(player);
+                normal_move_right(player);
 
             }
             if (key_is_down(KEY_LEFT)) {
 
                 if (player->xSpeed > 0)
-                    player_decelerate_left(player);
+                    normal_decelerate_left(player);
                 
-                player_normal_move_left(player);
+                normal_move_left(player);
 
             }
             if (!key_is_down(KEY_RIGHT | KEY_LEFT))
-                player_normal_friction(player);
+                normal_friction(player);
 
             camera_follow_target(
                 camera,
@@ -100,7 +101,7 @@ void player_routine(Player *player, Camera *camera)
                 camVerticalPoint
             );
 
-            player_update_position(player);
+            update_position(player);
 
         break;
 
@@ -111,12 +112,12 @@ void player_routine(Player *player, Camera *camera)
         case STATE_AIRBORNE:
 
             if (key_is_down(KEY_RIGHT))
-                player_airborne_move_right(player);
+                airborne_move_right(player);
 
             if (key_is_down(KEY_LEFT))
-                player_airborne_move_left(player);
+                airborne_move_left(player);
             
-            player_airborne_airdrag(player);
+            airborne_airdrag(player);
 
             camera_follow_target(
                 camera,
@@ -128,14 +129,14 @@ void player_routine(Player *player, Camera *camera)
                 camBottomBorder
             );
 
-            player_update_position(player);
+            update_position(player);
             
-            player_airborne_gravity(player);
+            airborne_gravity(player);
 
         break;
     }
 
-    player_bounds_collision(player);
+    bounds_collision(player);
 
 }
 
@@ -159,6 +160,7 @@ void player_render(Player *player, Camera *camera)
     }
     else {
         sprite_set_animation(player->sprite, &charData.playerAnim[ANIM_IDLE]);
+        animDuration = 0;
     }
 
     sprite_render_animation(player->sprite, animDuration);
@@ -172,14 +174,7 @@ void player_destroy(Player *player)
 
 /*=================PRIVATE FUNCTIONS==========================*/
 
-INLINE void player_decelerate_right(Player *player)
-{
-    player->xSpeed += playerDecel;
-    if (player->xSpeed >= 0)
-        player->xSpeed = FIXED8(0, 128);
-}
-
-INLINE void player_normal_move_right(Player *player)
+INLINE void normal_move_right(Player *player)
 {
     if (player->xSpeed < playerMaxSpeed) {
         player->xSpeed += playerAcc;
@@ -189,14 +184,14 @@ INLINE void player_normal_move_right(Player *player)
     }
 }
 
-INLINE void player_decelerate_left(Player *player)
+INLINE void normal_decelerate_right(Player *player)
 {
-    player->xSpeed -= playerDecel;
-    if (player->xSpeed <= 0)
-        player->xSpeed = -FIXED8(0, 128);
+    player->xSpeed += playerDecel;
+    if (player->xSpeed >= 0)
+        player->xSpeed = FIXED8(0, 128);
 }
 
-INLINE void player_normal_move_left(Player *player)
+INLINE void normal_move_left(Player *player)
 {
     if (player->xSpeed > -playerMaxSpeed) {
         player->xSpeed -= playerAcc;
@@ -206,12 +201,19 @@ INLINE void player_normal_move_left(Player *player)
     }
 }
 
-INLINE void player_normal_friction(Player *player)
+INLINE void normal_decelerate_left(Player *player)
+{
+    player->xSpeed -= playerDecel;
+    if (player->xSpeed <= 0)
+        player->xSpeed = -FIXED8(0, 128);
+}
+
+INLINE void normal_friction(Player *player)
 {
     player->xSpeed -= mf_min(mf_abs(player->xSpeed), playerFric) * mf_sign(player->xSpeed);
 }
 
-INLINE void player_airborne_move_right(Player *player)
+INLINE void airborne_move_right(Player *player)
 {
     if (player->xSpeed < playerMaxSpeed) {
         player->xSpeed += playerAirAcc;
@@ -221,7 +223,7 @@ INLINE void player_airborne_move_right(Player *player)
     }
 }
 
-INLINE void player_airborne_move_left(Player *player)
+INLINE void airborne_move_left(Player *player)
 {
     if (player->xSpeed > -playerMaxSpeed) {
         player->xSpeed -= playerAirAcc;
@@ -231,21 +233,21 @@ INLINE void player_airborne_move_left(Player *player)
     }
 }
 
-INLINE void player_airborne_airdrag(Player *player)
+INLINE void airborne_airdrag(Player *player)
 {
     if (player->ySpeed < 0 && player->ySpeed > -FIXED8(4, 0)) {
         player->xSpeed -= ((player->xSpeed / FIXED8(0, 32)) / FIXED8(256, 0));
     }
 }
 
-INLINE void player_airborne_gravity(Player *player)
+INLINE void airborne_gravity(Player *player)
 {
     player->ySpeed += gravity;
     if (player->ySpeed > playerMaxVerticalSpeed)
         player->ySpeed = playerMaxVerticalSpeed;
 }
 
-INLINE void player_bounds_collision(Player *player)
+INLINE void bounds_collision(Player *player)
 {
     if (fixed8_to_int(player->xPos + player->xSpeed) - playerWidth < 0) {
         player->xPos = FIXED8(playerWidth, 0);
@@ -253,7 +255,7 @@ INLINE void player_bounds_collision(Player *player)
     }
 }
 
-INLINE void player_update_position(Player *player)
+INLINE void update_position(Player *player)
 {
     player->xPos += player->xSpeed;
     player->yPos += player->ySpeed;
