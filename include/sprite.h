@@ -2,8 +2,8 @@
 #define SPRITE_H
 
 #include "gba_typedefs.h"
-#include "animation.h"
 #include "gba_objects.h"
+#include "animation.h"
 
 //TODO: Affine Sprites
 

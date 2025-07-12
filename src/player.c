@@ -2,15 +2,16 @@
 #include <stdlib.h>
 #include "player.h"
 
+
+static playerCharData charData;
+
+static int animDuration;
+
 static fixed8 camLeftBorder     = FIXED8(113, 0);
 static fixed8 camRightBorder    = FIXED8(125, 0);
 static fixed8 camTopBorder      = FIXED8(57, 0);
 static fixed8 camVerticalPoint  = FIXED8(79, 0);
 static fixed8 camBottomBorder   = FIXED8(101, 0);
-
-static int animDuration;
-
-static playerCharData charData;
 
 static fixed8 gravity = FIXED8(0, 53);
 
