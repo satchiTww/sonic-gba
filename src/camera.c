@@ -2,7 +2,9 @@
 #include "camera.h"
 #include <stdlib.h>
 
-Camera *camera_create(int xPos, int yPos)
+static fixed8 cameraHorizMaxSpeed = FIXED8(16, 0);
+
+Camera *camera_create(fixed8 xPos, fixed8 yPos, fixed8 maxHorizBorder, fixed8 maxVertBorder)
 {
     Camera *camera;
 
@@ -10,39 +12,52 @@ Camera *camera_create(int xPos, int yPos)
 
     camera->xPos = xPos;
     camera->yPos = yPos;
+    camera->xSpeed = 0;
+    camera->ySpeed = 0;
+    camera->minHorizBorder = 0;
+    camera->minVertBorder = 0;
+    camera->maxHorizBorder = maxHorizBorder;
+    camera->maxVertBorder = maxVertBorder;
 
     return camera;
 }
 
-void camera_follow_target(Camera* camera, 
-                   int targetXpos, 
-                   int targetYpos, 
-                   int leftBorder, 
-                   int rightBorder, 
-                   int topBorder,
-                   int bottomBorder)
+void camera_follow_target(Camera *camera, fixed8 targetXpos, fixed8 targetYpos)
 {
-    if (targetXpos > (camera->xPos + rightBorder))
-        camera->xPos = targetXpos - rightBorder;
-    if (targetXpos < (camera->xPos + leftBorder))
-        camera->xPos = targetXpos - leftBorder;
-    if (targetYpos > (camera->yPos + bottomBorder))
-        camera->yPos = targetYpos - bottomBorder;
-    if (targetYpos < (camera->yPos + topBorder))
-        camera->yPos = targetYpos - topBorder;
+    fixed8 cameraCenterX = camera->xPos + FIXED8(SCREEN_WIDTH / 2, 0);
+    fixed8 cameraCenterY = camera->yPos + FIXED8(SCREEN_HEIGHT / 2, 0);
+
+    camera->xSpeed = targetXpos - cameraCenterX;
+    camera->ySpeed = targetYpos - cameraCenterY;
 }
 
-//clamp the camera position to a minimum x and y position and a maximum x and y position
-void camera_clamp(Camera *camera, int minX, int maxX, int minY, int maxY)
+void camera_update_position(Camera *camera)
 {
-    if (camera->xPos < minX)
-        camera->xPos = minX;
-    if (camera->xPos > maxX)
-        camera->xPos = maxX;
-    if (camera->yPos < minY)
-        camera->yPos = minY;
-    if (camera->yPos > maxY)
-        camera->yPos = maxY;
+    fixed8 camBottomLeftX;
+    fixed8 camBottomLeftY;
+
+    if (mf_abs(camera->xSpeed) > cameraHorizMaxSpeed)
+        camera->xSpeed = cameraHorizMaxSpeed * mf_sign(camera->xSpeed);
+
+    camera->xPos += camera->xSpeed;
+    camera->yPos += camera->ySpeed;
+
+    camBottomLeftX = camera->xPos + FIXED8(SCREEN_WIDTH, 0);
+    camBottomLeftY = camera->yPos + FIXED8(SCREEN_HEIGHT, 0);
+
+    if (camera->xPos < camera->minHorizBorder) {
+        camera->xPos += camera->minHorizBorder - camera->xPos;
+    }
+    else if (camBottomLeftX > camera->maxHorizBorder) {
+        camera->xPos -= camBottomLeftX - camera->maxHorizBorder;
+    }
+
+    if (camera->yPos < camera->minVertBorder) {
+        camera->yPos += camera->minVertBorder - camera->yPos;
+    }
+    else if (camBottomLeftY > camera->maxVertBorder) {
+        camera->yPos -= camBottomLeftY - camera->maxVertBorder;
+    }
 }
 
 void camera_destroy(Camera *camera)

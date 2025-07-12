@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include "player.h"
 
-static int camLeftBorder     = 113;
-static int camRightBorder    = 125;
-static int camVerticalPoint  = 68;
-static int camTopBorder      = 46;
-static int camBottomBorder   = 90;
+static fixed8 camLeftBorder     = FIXED8(113, 0);
+static fixed8 camRightBorder    = FIXED8(125, 0);
+static fixed8 camTopBorder      = FIXED8(57, 0);
+static fixed8 camVerticalPoint  = FIXED8(79, 0);
+static fixed8 camBottomBorder   = FIXED8(101, 0);
 
 static int animDuration;
 
@@ -33,11 +33,15 @@ INLINE void normal_decelerate_right(Player *player);
 INLINE void normal_move_left(Player *player);
 INLINE void normal_decelerate_left(Player *player);
 INLINE void normal_friction(Player *player);
+void        normal_camera_follow(Player *player, Camera *camera);
+
 INLINE void airborne_move_right(Player *player);
 INLINE void airborne_move_left(Player *player);
 INLINE void airborne_airdrag(Player *player);
 INLINE void airborne_gravity(Player *player);
-INLINE void bounds_collision(Player *player);
+void        airborne_camera_follow(Player *player, Camera *camera);
+
+INLINE void bounds_camera_collision(Player *player, Camera *camera);
 INLINE void update_position(Player *player);
 
 
@@ -91,15 +95,7 @@ void player_routine(Player *player, Camera *camera)
             if (!key_is_down(KEY_RIGHT | KEY_LEFT))
                 normal_friction(player);
 
-            camera_follow_target(
-                camera,
-                fixed8_to_int(player->xPos + player->xSpeed),
-                fixed8_to_int(player->yPos + player->ySpeed),
-                camLeftBorder,
-                camRightBorder,
-                camVerticalPoint,
-                camVerticalPoint
-            );
+            normal_camera_follow(player, camera);
 
             update_position(player);
 
@@ -119,15 +115,7 @@ void player_routine(Player *player, Camera *camera)
             
             airborne_airdrag(player);
 
-            camera_follow_target(
-                camera,
-                fixed8_to_int(player->xPos + player->xSpeed),
-                fixed8_to_int(player->yPos + player->ySpeed),
-                camLeftBorder,
-                camRightBorder,
-                camTopBorder,
-                camBottomBorder
-            );
+            airborne_camera_follow(player, camera);
 
             update_position(player);
             
@@ -136,7 +124,7 @@ void player_routine(Player *player, Camera *camera)
         break;
     }
 
-    bounds_collision(player);
+    bounds_camera_collision(player, camera);
 
 }
 
@@ -147,11 +135,13 @@ void player_render(Player *player, Camera *camera)
     if (key_is_down(KEY_LEFT))
         player->sprite->hFlip = TRUE;
 
-    player->sprite->xPos = fixed8_to_int(player->xPos) - camera->xPos;
-    player->sprite->yPos = fixed8_to_int(player->yPos) - camera->yPos;
+    player->sprite->xPos = fixed8_to_int(player->xPos - camera->xPos);
+    player->sprite->yPos = fixed8_to_int(player->yPos - camera->yPos);
 
     animDuration = mf_max(0, 8 - mf_abs(fixed8_to_int(player->xSpeed)));
 
+    //TEMP
+    //TODO: Set animations specific to player state
     if (mf_abs(player->xSpeed) >= FIXED8(6, 0)) {
         sprite_set_animation(player->sprite, &charData.playerAnim[ANIM_RUN]);
     } 
@@ -213,6 +203,26 @@ INLINE void normal_friction(Player *player)
     player->xSpeed -= mf_min(mf_abs(player->xSpeed), playerFric) * mf_sign(player->xSpeed);
 }
 
+void normal_camera_follow(Player *player, Camera *camera)
+{
+    fixed8 rightBorder   = camera->xPos + camRightBorder;
+    fixed8 leftBorder    = camera->xPos + camLeftBorder;
+    fixed8 verticalPoint = camera->yPos + camVerticalPoint;
+
+    fixed8 playerTargetX = player->xPos + player->xSpeed;
+    fixed8 playerTargetY = player->yPos + player->ySpeed;
+
+    camera->xSpeed = 0;
+    camera->ySpeed = 0;
+
+    if (playerTargetX > rightBorder)
+        camera->xSpeed += playerTargetX - rightBorder;
+    else if (playerTargetX < leftBorder)
+        camera->xSpeed -= leftBorder - playerTargetX;
+    if (playerTargetY != verticalPoint)
+        camera->ySpeed += playerTargetY - verticalPoint;
+}
+
 INLINE void airborne_move_right(Player *player)
 {
     if (player->xSpeed < playerMaxSpeed) {
@@ -247,11 +257,39 @@ INLINE void airborne_gravity(Player *player)
         player->ySpeed = playerMaxVerticalSpeed;
 }
 
-INLINE void bounds_collision(Player *player)
+void airborne_camera_follow(Player *player, Camera *camera)
 {
-    if (fixed8_to_int(player->xPos + player->xSpeed) - playerWidth < 0) {
-        player->xPos = FIXED8(playerWidth, 0);
-        player->xSpeed = 0;
+    fixed8 rightBorder  = camera->xPos + camRightBorder;
+    fixed8 leftBorder   = camera->xPos + camLeftBorder;
+    fixed8 topBorder    = camera->yPos + camTopBorder;
+    fixed8 bottomBorder = camera->yPos + camBottomBorder;
+
+    fixed8 playerTargetX = player->xPos + player->xSpeed;
+    fixed8 playerTargetY = player->yPos + player->ySpeed;
+
+    camera->xSpeed = 0;
+    camera->ySpeed = 0;
+
+    if (playerTargetX > rightBorder)
+        camera->xSpeed += playerTargetX - rightBorder;
+    else if (playerTargetX < leftBorder)
+        camera->xSpeed -= leftBorder - playerTargetX;
+    
+    if (playerTargetY > bottomBorder)
+        camera->ySpeed += playerTargetY - bottomBorder;
+    else if (playerTargetY < topBorder)
+        camera->ySpeed -= topBorder - playerTargetY;
+}
+
+INLINE void bounds_camera_collision(Player *player, Camera *camera)
+{
+    if (player->xPos - FIXED8(playerWidth, 0) < camera->minHorizBorder) {
+        player->xPos += camera->minHorizBorder - (player->xPos - FIXED8(playerWidth, 0));
+        player->xSpeed /= 2;
+    }
+    else if (player->xPos + FIXED8(playerWidth, 0) > camera->maxHorizBorder) {
+        player->xPos -= (player->xPos + FIXED8(playerWidth, 0)) - camera->maxHorizBorder;
+        player->xSpeed /= 2;
     }
 }
 

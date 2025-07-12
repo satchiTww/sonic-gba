@@ -16,7 +16,7 @@ static Player *player;
 static void move_bg0(void);
 static void move_bg1(void);
 
-struct SpriteListNode *spriteNode;
+static struct SpriteListNode *spriteNode;
 
 static void test_room_init(void)
 {
@@ -52,7 +52,7 @@ static void test_room_init(void)
 
     obj_init_oam();
 
-    camera = camera_create(0, 64);
+    camera = camera_create(0, FIXED8(64, 0), FIXED8(TEST_ROOM_WIDTH, 0), FIXED8(TEST_ROOM_HEIGHT, 0));
     player = player_create(FIXED8(48, 0), FIXED8(188, 0), STATE_NORMAL, CHAR_TETO, &spriteNode);
 }
 
@@ -60,7 +60,7 @@ static void test_room_update(void)
 {
     player_routine(player, camera);
 
-    camera_clamp(camera, 0, TEST_ROOM_WIDTH - SCREEN_WIDTH, 0, TEST_ROOM_HEIGHT - SCREEN_HEIGHT);
+    camera_update_position(camera);
 
     player_render(player, camera);
 
@@ -95,9 +95,11 @@ static void move_bg1(void)
 {
     static int bg1HScroll = 0;
     static int bg1VScroll = 0;
+    int camX = fixed8_to_int(camera->xPos);
+    int camY = fixed8_to_int(camera->yPos);
 
-    bg1HScroll = camera->xPos % TILE_SIZE;
-    bg1VScroll = camera->yPos % TILE_SIZE;
+    bg1HScroll = camX % TILE_SIZE;
+    bg1VScroll = camY % TILE_SIZE;
     REG_BG1HOFS = bg1HScroll;
     REG_BG1VOFS = bg1VScroll;
 
@@ -105,8 +107,8 @@ static void move_bg1(void)
         test_zone_layoutMap,
         29,
         TEST_ROOM_WIDTH / TILE_SIZE,
-        camera->xPos / TILE_SIZE,
-        camera->yPos / TILE_SIZE
+        camX / TILE_SIZE,
+        camY / TILE_SIZE
     );
 }
 
