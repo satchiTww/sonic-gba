@@ -3,12 +3,10 @@
 #include "scenes.h"
 #include "camera.h"
 #include "player.h"
+#include "sprite.h"
+#include "stage.h"
 #include "data/include/bg_data.h"
 #include "data/include/level_layout.h"
-#include "sprite.h"
-
-#define TEST_ROOM_WIDTH  1008
-#define TEST_ROOM_HEIGHT 224
 
 static Camera *camera;
 static Player *player;
@@ -52,13 +50,13 @@ static void test_room_init(void)
 
     obj_init_oam();
 
-    camera = camera_create(0, FIXED8(64, 0), FIXED8(TEST_ROOM_WIDTH, 0), FIXED8(TEST_ROOM_HEIGHT, 0));
+    camera = camera_create(0, FIXED8(64, 0), FIXED8(stageTestRoom.mapWidth, 0), FIXED8(stageTestRoom.mapHeight, 0));
     player = player_create(FIXED8(48, 0), FIXED8(188, 0), STATE_NORMAL, CHAR_TETO, &spriteNode);
 }
 
 static void test_room_update(void)
 {
-    player_routine(player, camera);
+    player_routine(player, camera, &stageTestRoom);
 
     camera_update_position(camera);
 
@@ -106,7 +104,7 @@ static void move_bg1(void)
     tiles_tilemap_scroll(
         test_zone_layoutMap,
         29,
-        TEST_ROOM_WIDTH / TILE_SIZE,
+        stageTestRoom.mapWidth / TILE_SIZE,
         camX / TILE_SIZE,
         camY / TILE_SIZE
     );
