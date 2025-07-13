@@ -5,6 +5,7 @@
 #include "math_func.h"
 #include "camera.h"
 #include "sprite.h"
+#include "stage.h"
 
 typedef enum {
     STATE_NORMAL,
@@ -33,7 +34,7 @@ typedef struct {
     fixed8 xPos, yPos;
     fixed8 xSpeed, ySpeed;
     fixed8 groundSpeed;
-    fixed8 groundAngle;
+    u8 groundAngle;
     playerState state;
     Sprite *sprite;
 } Player;
@@ -49,7 +50,7 @@ typedef struct {
 extern playerCharData playerCharTable[NUM_OF_PLAYER_CHARS];
 
 Player *player_create(fixed8 xPos, fixed8 yPos, playerState state, playerCharacter character, struct SpriteListNode **sprNode);
-void player_routine(Player *player, Camera *camera);
+void player_routine(Player *player, Camera *camera, const StageData *stage);
 void player_render(Player *player, Camera *camera);
 void player_destroy(Player *player);
 
