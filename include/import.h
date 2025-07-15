@@ -18,7 +18,11 @@
 //Define u16 constants for the imported data
 #define DEFINE_BIN16(sym) \
     extern const unsigned short sym[]; \
-    extern unsigned int _sizeof_##sym[]
+    extern const unsigned int _sizeof_##sym[]
+
+#define DEFINE_BIN8(sym) \
+    extern const unsigned char sym[]; \
+    extern const unsigned char _sizeof_##sym[]
 
 //Define u16 constants for tiles, map and pal data
 #define DEFINE_GBA_BG16(sym) \

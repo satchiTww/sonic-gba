@@ -1,12 +1,11 @@
 #include "stage.h"
-#include "data/bin/collisionMap/TZ_CollisionMap.h"
-#include "data/bin/solidTile/TZ_CollisionData.h"
+#include "data/include/solid_tiles_data.h"
 
 StageData stageTestRoom = {
-    .mapWidth = 1008,
-    .mapHeight = 224,
-    .collisionMapData = TZ_CollisionMap,
-    .collisionHeightData = TZ_CollisionDataHeight,
+    .mapWidth = 2352,
+    .mapHeight = 272,
+    .collisionMapData = TestZoneMapIndex,
+    .collisionHeightData = TestZoneHeightData,
     //.collisionWidthData
-    .collisionAngleData = TZ_CollisionDataAngle,
+    .collisionAngleData = TestZoneAngleData,
 };

@@ -15,20 +15,26 @@ static fixed8 camBottomBorder   = FIXED8(101, 0);
 
 static fixed8 gravity = FIXED8(0, 53);
 
+static fixed8 slopeFactorNormal   = FIXED8(0, 52);
+static fixed8 slopeFactorRollup   = FIXED8(0, 20);
+static fixed8 slopeFactorRolldown = FIXED8(0, 80);
+
+
 /*==========PLAYER VARIABLES===========================*/
 //TODO: Set variables specific to different characters
 static int playerWidth;
 static int playerHeight;
 
-static fixed8 playerAcc = FIXED8(0, 14);
+static fixed8 playerAcc = FIXED8(0, 10);
 static fixed8 playerDecel = FIXED8(0, 128);
-static fixed8 playerFric = FIXED8(0, 14);
+static fixed8 playerFric = FIXED8(0, 10);
 static fixed8 playerAirAcc = FIXED8(0, 24);
 
-static fixed8 playerMaxSpeed = FIXED8(6, 0);
+static fixed8 playerMaxSpeed = FIXED8(5, 0);
 static fixed8 playerMaxVerticalSpeed = FIXED8(16, 0);
 
 /*==========PRIVATE FUNCTIONS===================*/
+INLINE void normal_slope_force(Player *player);
 INLINE void normal_move_right(Player *player);
 INLINE void normal_decelerate_right(Player *player);
 INLINE void normal_move_left(Player *player);
@@ -42,8 +48,10 @@ INLINE void airborne_move_left(Player *player);
 INLINE void airborne_airdrag(Player *player);
 INLINE void airborne_gravity(Player *player);
 static void airborne_camera_follow(Player *player, Camera *camera);
+static void airborne_collision(Player *player, const StageData *stage);
 
 INLINE void bounds_collision(Player *player, const StageData *stage);
+INLINE void update_speed(Player *player);
 INLINE void update_position(Player *player);
 
 
@@ -78,9 +86,11 @@ void player_routine(Player *player, Camera *camera, const StageData *stage)
     {
         case STATE_NORMAL:
 
+            normal_slope_force(player);
+
             if (key_is_down(KEY_RIGHT)) {
 
-                if (player->xSpeed < 0)
+                if (player->groundSpeed < 0)
                     normal_decelerate_right(player);
                 
                 normal_move_right(player);
@@ -88,7 +98,7 @@ void player_routine(Player *player, Camera *camera, const StageData *stage)
             }
             if (key_is_down(KEY_LEFT)) {
 
-                if (player->xSpeed > 0)
+                if (player->groundSpeed > 0)
                     normal_decelerate_left(player);
                 
                 normal_move_left(player);
@@ -97,11 +107,13 @@ void player_routine(Player *player, Camera *camera, const StageData *stage)
             if (!key_is_down(KEY_RIGHT | KEY_LEFT))
                 normal_friction(player);
 
-            normal_camera_follow(player, camera);
-
+            
+            update_speed(player);
             update_position(player);
 
             normal_ground_collision(player, stage);
+
+            normal_camera_follow(player, camera);
         break;
 
         case STATE_ROLLING:
@@ -123,6 +135,8 @@ void player_routine(Player *player, Camera *camera, const StageData *stage)
             update_position(player);
             
             airborne_gravity(player);
+
+            airborne_collision(player, stage);
         break;
     }
 
@@ -144,7 +158,7 @@ void player_render(Player *player, Camera *camera)
 
     //TEMP
     //TODO: Set animations specific to player state
-    if (mf_abs(player->xSpeed) >= FIXED8(6, 0)) {
+    if (mf_abs(player->xSpeed) >= playerMaxSpeed) {
         sprite_set_animation(player->sprite, &charData.playerAnim[ANIM_RUN]);
     } 
     else if (mf_abs(player->xSpeed) > 0) {
@@ -166,53 +180,60 @@ void player_destroy(Player *player)
 
 /*=================PRIVATE FUNCTIONS==========================*/
 
+INLINE void normal_slope_force(Player *player)
+{
+    fixed8 slopeFactor = (slopeFactorNormal * -angle_sin(player->groundAngle)) >> 8;
+    if (player->groundSpeed != 0 || slopeFactor >= FIXED8(0, 13))
+        player->groundSpeed -= slopeFactor;
+}
+
 INLINE void normal_move_right(Player *player)
 {
-    if (player->xSpeed < playerMaxSpeed) {
-        player->xSpeed += playerAcc;
-        if (player->xSpeed >= playerMaxSpeed) {
-            player->xSpeed = playerMaxSpeed;
+    if (player->groundSpeed < playerMaxSpeed) {
+        player->groundSpeed += playerAcc;
+        if (player->groundSpeed >= playerMaxSpeed) {
+            player->groundSpeed = playerMaxSpeed;
         }
     }
 }
 
 INLINE void normal_decelerate_right(Player *player)
 {
-    player->xSpeed += playerDecel;
-    if (player->xSpeed >= 0)
-        player->xSpeed = FIXED8(0, 128);
+    player->groundSpeed += playerDecel;
+    if (player->groundSpeed >= 0)
+        player->groundSpeed = FIXED8(0, 128);
 }
 
 INLINE void normal_move_left(Player *player)
 {
-    if (player->xSpeed > -playerMaxSpeed) {
-        player->xSpeed -= playerAcc;
-        if (player->xSpeed <= -playerMaxSpeed) {
-            player->xSpeed = -playerMaxSpeed;
+    if (player->groundSpeed > -playerMaxSpeed) {
+        player->groundSpeed -= playerAcc;
+        if (player->groundSpeed <= -playerMaxSpeed) {
+            player->groundSpeed = -playerMaxSpeed;
         }
     }
 }
 
 INLINE void normal_decelerate_left(Player *player)
 {
-    player->xSpeed -= playerDecel;
-    if (player->xSpeed <= 0)
-        player->xSpeed = -FIXED8(0, 128);
+    player->groundSpeed -= playerDecel;
+    if (player->groundSpeed <= 0)
+        player->groundSpeed = -FIXED8(0, 128);
 }
 
 INLINE void normal_friction(Player *player)
 {
-    player->xSpeed -= mf_min(mf_abs(player->xSpeed), playerFric) * mf_sign(player->xSpeed);
+    player->groundSpeed -= mf_min(mf_abs(player->groundSpeed), playerFric) * mf_sign(player->groundSpeed);
 }
 
-void normal_camera_follow(Player *player, Camera *camera)
+static void normal_camera_follow(Player *player, Camera *camera)
 {
     fixed8 rightBorder   = camera->xPos + camRightBorder;
     fixed8 leftBorder    = camera->xPos + camLeftBorder;
     fixed8 verticalPoint = camera->yPos + camVerticalPoint;
 
-    fixed8 playerTargetX = player->xPos + player->xSpeed;
-    fixed8 playerTargetY = player->yPos + player->ySpeed;
+    fixed8 playerTargetX = player->xPos;
+    fixed8 playerTargetY = player->yPos;
 
     camera->xSpeed = 0;
     camera->ySpeed = 0;
@@ -225,41 +246,41 @@ void normal_camera_follow(Player *player, Camera *camera)
         camera->ySpeed += playerTargetY - verticalPoint;
 }
 
-void normal_ground_collision(Player *player, const StageData *stage)
+static void normal_ground_collision(Player *player, const StageData *stage)
 {
-    int xSensorA = fixed8_to_int(player->xPos) - playerWidth;
-    int ySensorA = fixed8_to_int(player->yPos) + playerHeight;
-
-    int xSensorB = fixed8_to_int(player->xPos) + playerWidth;
-    int ySensorB = fixed8_to_int(player->yPos) + playerHeight;
-
-    if (xSensorA < 0 || xSensorB > stageTestRoom.mapWidth) return;
+    int x = fixed8_to_int(player->xPos);
+    int y = fixed8_to_int(player->yPos) + playerHeight;
 
     SolidTile solidTileA = collision_find_vertical_tile(
-        xSensorA,
-        ySensorA,
+        x - playerWidth,
+        y,
         stage->mapWidth / COLLISION_TILE_SIZE,
         stage->collisionMapData,
         stage->collisionHeightData,
         stage->collisionAngleData
     );
     SolidTile solidTileB = collision_find_vertical_tile(
-        xSensorB,
-        ySensorB,
+        x + playerWidth,
+        y,
         stage->mapWidth / COLLISION_TILE_SIZE,
         stage->collisionMapData,
         stage->collisionHeightData,
         stage->collisionAngleData
     );
 
-    SolidTile finalTile = solidTileA.distance <= solidTileB.distance ? solidTileA : solidTileB;
+    SolidTile choosenTile = solidTileA.distance <= solidTileB.distance ? solidTileA : solidTileB;
 
-    if (finalTile.distance > mf_min(mf_abs(fixed8_to_int(player->xSpeed)) + 4, 14)) {
-        //player->state = STATE_AIRBORNE;
+    if (choosenTile.distance > mf_min(mf_abs(fixed8_to_int(player->xSpeed)) + 4, 14)) {
+        player->state = STATE_AIRBORNE;
         return;
     }
-    player->yPos += FIXED8(finalTile.distance, 0);
-    player->groundAngle = finalTile.angle;
+    player->yPos += FIXED8(choosenTile.distance, 0);
+
+    player->groundAngle = choosenTile.angle;
+
+    if (choosenTile.angle == FLAGGED_ANGLE) {
+        player->groundAngle = ((player->groundAngle + 32) / 64) * 64;
+    }
 }
 
 INLINE void airborne_move_right(Player *player)
@@ -296,7 +317,7 @@ INLINE void airborne_gravity(Player *player)
         player->ySpeed = playerMaxVerticalSpeed;
 }
 
-void airborne_camera_follow(Player *player, Camera *camera)
+static void airborne_camera_follow(Player *player, Camera *camera)
 {
     fixed8 rightBorder  = camera->xPos + camRightBorder;
     fixed8 leftBorder   = camera->xPos + camLeftBorder;
@@ -320,6 +341,11 @@ void airborne_camera_follow(Player *player, Camera *camera)
         camera->ySpeed -= topBorder - playerTargetY;
 }
 
+static void airborne_collision(Player *player, const StageData *stage)
+{
+
+}
+
 INLINE void bounds_collision(Player *player, const StageData *stage)
 {
     if (player->xPos - FIXED8(playerWidth, 0) < 0) {
@@ -331,6 +357,13 @@ INLINE void bounds_collision(Player *player, const StageData *stage)
         player->xSpeed /= 2;
     }
 }
+
+INLINE void update_speed(Player *player)
+{
+    player->xSpeed = (player->groundSpeed * angle_cos(player->groundAngle)) >> 8;
+    player->ySpeed = (player->groundSpeed * -angle_sin(player->groundAngle)) >> 8;
+}
+
 
 INLINE void update_position(Player *player)
 {

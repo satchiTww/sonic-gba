@@ -9,6 +9,8 @@
 #define TILE_HFLIP_MASK 0x400
 #define TILE_VFLIP_MASK 0x800
 
+#define FLAGGED_ANGLE 255
+
 typedef struct {
     int distance;
     u8 angle;
@@ -25,7 +27,7 @@ typedef struct {
 
 SolidTile collision_find_vertical_tile(
     int xPos, int yPos,
-    int mapWidth,
+    const int mapWidth,
     const u16 *collisionMapData,
     const u8 *heightData,
     const u8 *angleData
@@ -33,7 +35,7 @@ SolidTile collision_find_vertical_tile(
 
 TileInfo collision_get_tile_info(
     int xPos, int yPos,
-    int mapWidth,
+    const int mapWidth,
     const u16 *collisionMapData,
     const u8 *heightData,
     //const u8 *widthData,

@@ -51,11 +51,20 @@ static void test_room_init(void)
     obj_init_oam();
 
     camera = camera_create(0, FIXED8(64, 0), FIXED8(stageTestRoom.mapWidth, 0), FIXED8(stageTestRoom.mapHeight, 0));
-    player = player_create(FIXED8(48, 0), FIXED8(188, 0), STATE_NORMAL, CHAR_TETO, &spriteNode);
+    player = player_create(FIXED8(48, 0), FIXED8(219, 0), STATE_NORMAL, CHAR_TETO, &spriteNode);
 }
 
 static void test_room_update(void)
 {
+    //reset
+    if (key_hit(KEY_R)) {
+        player->xPos = FIXED8(48, 0);
+        player->yPos = FIXED8(219, 0);
+        player->groundSpeed = 0;
+        player->groundAngle = 0;
+        player->state = STATE_NORMAL;
+    }
+
     player_routine(player, camera, &stageTestRoom);
 
     camera_update_position(camera);
