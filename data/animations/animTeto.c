@@ -24,8 +24,16 @@ static const AnimSpriteFrame runFrames[] = {
     { teto_run_3ObjShapes, (u32)_sizeof_teto_run_3ObjShapes, teto_run3Tiles, (u32)_sizeof_teto_run3Tiles, -2, 0, 0},
 };
 
+static const AnimSpriteFrame pushFrames[] = {
+    { teto_push_0ObjShapes, (u32)_sizeof_teto_push_0ObjShapes, teto_push0Tiles, (u32)_sizeof_teto_push0Tiles, -6, 0, 0},
+    { teto_push_1ObjShapes, (u32)_sizeof_teto_push_1ObjShapes, teto_push1Tiles, (u32)_sizeof_teto_push1Tiles, -6, 0, 0},
+    { teto_push_2ObjShapes, (u32)_sizeof_teto_push_2ObjShapes, teto_push2Tiles, (u32)_sizeof_teto_push2Tiles, -6, 0, 0},
+    { teto_push_3ObjShapes, (u32)_sizeof_teto_push_3ObjShapes, teto_push3Tiles, (u32)_sizeof_teto_push3Tiles, -6, 0, 0},
+};
+
 AnimatedSprite animTeto[NUM_OF_PLAYER_ANIM] = {
     [ANIM_IDLE] = {TRUE, 1, (AnimSpriteFrame*)idleFrames},
     [ANIM_WALK] = {TRUE, 8, (AnimSpriteFrame*)walkFrames},
     [ANIM_RUN] = {TRUE, 4, (AnimSpriteFrame*)runFrames},
+    [ANIM_PUSH] = {TRUE, 4, (AnimSpriteFrame*)pushFrames},
 };

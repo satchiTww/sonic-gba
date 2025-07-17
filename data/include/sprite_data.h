@@ -21,6 +21,10 @@ DEFINE_BIN16(teto_run0Tiles);
 DEFINE_BIN16(teto_run1Tiles);
 DEFINE_BIN16(teto_run2Tiles);
 DEFINE_BIN16(teto_run3Tiles);
+DEFINE_BIN16(teto_push0Tiles);
+DEFINE_BIN16(teto_push1Tiles);
+DEFINE_BIN16(teto_push2Tiles);
+DEFINE_BIN16(teto_push3Tiles);
 
 
 #endif

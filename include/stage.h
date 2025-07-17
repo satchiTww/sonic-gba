@@ -10,8 +10,8 @@ typedef struct {
     const u8 *collisionHeightData;
     const u8 *collisionWidthData;
     const u8 *collisionAngleData;
-} StageData;
+} Stage;
 
-extern StageData stageTestRoom;
+extern Stage stageTestRoom;
 
 #endif

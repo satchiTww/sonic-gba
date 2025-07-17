@@ -64,12 +64,20 @@ static void test_room_update(void)
         player->groundAngle = 0;
         player->state = STATE_NORMAL;
     }
+    if (player->state != STATE_DEBUG && key_hit(KEY_L)) {
+        player->groundSpeed = 0;
+        player->groundAngle = 0;
+        player->state = STATE_DEBUG;
+    }
+    else if (player->state == STATE_DEBUG && key_hit(KEY_L)) {
+        player->state = STATE_NORMAL;
+    }
 
     player_routine(player, camera, &stageTestRoom);
 
     camera_update_position(camera);
 
-    player_render(player, camera);
+    player_animate(player, camera);
 
     move_bg1();
     move_bg0();

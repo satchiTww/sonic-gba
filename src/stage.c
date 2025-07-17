@@ -1,11 +1,11 @@
 #include "stage.h"
 #include "data/include/solid_tiles_data.h"
 
-StageData stageTestRoom = {
-    .mapWidth = 2352,
-    .mapHeight = 272,
-    .collisionMapData = TestZoneMapIndex,
+Stage stageTestRoom = {
+    .mapWidth = 3072,
+    .mapHeight = 320,
+    .collisionMapData    = TestZoneMapIndex,
     .collisionHeightData = TestZoneHeightData,
-    //.collisionWidthData
-    .collisionAngleData = TestZoneAngleData,
+    .collisionWidthData  = TestZoneWidthData,
+    .collisionAngleData  = TestZoneAngleData,
 };

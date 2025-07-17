@@ -17,6 +17,10 @@ DEFINE_BIN16(teto_run_0ObjShapes);
 DEFINE_BIN16(teto_run_1ObjShapes);
 DEFINE_BIN16(teto_run_2ObjShapes);
 DEFINE_BIN16(teto_run_3ObjShapes);
+DEFINE_BIN16(teto_push_0ObjShapes);
+DEFINE_BIN16(teto_push_1ObjShapes);
+DEFINE_BIN16(teto_push_2ObjShapes);
+DEFINE_BIN16(teto_push_3ObjShapes);
 
 
 #endif
