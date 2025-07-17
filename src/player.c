@@ -292,7 +292,7 @@ static void normal_walls_collision(Player *player, const Stage *stage)
 {
     if (player->groundSpeed == 0) return;
 
-    int pushRadius = playerWidth + 1;
+    int pushRadius = playerWidth + 6;
     int yoffset = 8 * (player->groundAngle == 0);
     
     int y = fixed8_to_int(player->yPos + player->ySpeed) + yoffset;
