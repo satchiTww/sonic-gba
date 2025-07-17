@@ -31,14 +31,13 @@ typedef struct {
     u16 tileIndex;
     u8 isHflip;
     u8 isVflip;
-    s8 height;
-    s8 width;
-    u8 angle;
+    //TODO:
+    //SOLIDITY TYPE
 } TileInfo;
 
 SolidTile collision_find_vertical_tile(int x, int y, const Stage *stage, CollisionFloorDir dir);
 SolidTile collision_find_horizontal_tile(int x, int y, const Stage *stage, CollisionWallDir dir);
 
-TileInfo collision_get_tile_info(int x, int y, const Stage *stage);
+TileInfo collision_get_tile_info(int gridX, int gridY, const Stage *stage);
 
 #endif
