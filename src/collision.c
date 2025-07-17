@@ -103,26 +103,14 @@ SolidTile find_h_tile2(int x, int y, const Stage *stage, CollisionWallDir dir)
     width = get_tile_width(y, &tile, stage->collisionWidthData);
     angle = get_tile_angle(&tile, stage->collisionAngleData);
 
-    if (!tile.isHflip && dir == COLL_LEFT) {
-        width = -width;
-    }
-
     if (width > 0) {
-        int tileSurface = COLLISION_TILE_SIZE - (width + x % COLLISION_TILE_SIZE);
+        int tileSurface = dir > 0 ? COLLISION_TILE_SIZE - (width + x % COLLISION_TILE_SIZE) : x % COLLISION_TILE_SIZE - width;
         
         return (SolidTile){tileSurface, angle};
     }
-    else if (width < 0) {
-        int tileSurface = width + x % COLLISION_TILE_SIZE;
-
-        if (tileSurface < 0) {
-            return (SolidTile){tileSurface, angle};
-        }
-    }
 
     //no tile found
-    int tileEdge = dir == COLL_RIGHT ? COLLISION_TILE_SIZE - (x % COLLISION_TILE_SIZE) :
-                                       x % COLLISION_TILE_SIZE;
+    int tileEdge = dir > 0 ? COLLISION_TILE_SIZE - (x % COLLISION_TILE_SIZE) : x % COLLISION_TILE_SIZE;
 
     return (SolidTile){tileEdge, angle};
 }
@@ -140,34 +128,15 @@ SolidTile collision_find_horizontal_tile(int x, int y, const Stage *stage, Colli
     width = get_tile_width(y, &tile, stage->collisionWidthData);
     angle = get_tile_angle(&tile, stage->collisionAngleData);
 
-    if (!tile.isHflip && dir == COLL_LEFT) {
-        width = -width;
-    }
-
     if (width > 0)
     {
         if (width != COLLISION_TILE_SIZE) { //not a full tile
-            tileFound.distance = COLLISION_TILE_SIZE - (width + x % COLLISION_TILE_SIZE);
+            tileFound.distance = dir > 0 ? COLLISION_TILE_SIZE - (width + x % COLLISION_TILE_SIZE) : x % COLLISION_TILE_SIZE - width;
             tileFound.angle = angle;
 
             return tileFound;
         }
         else { //full tile
-            tileFound = find_h_tile2(x - COLLISION_TILE_SIZE * dir, y, stage, dir);
-            tileFound.distance -= COLLISION_TILE_SIZE;
-
-            return tileFound;
-        }
-    }
-    else if (width < 0)
-    {
-        if (width != -COLLISION_TILE_SIZE) {
-            tileFound.distance = width + x % COLLISION_TILE_SIZE;
-            tileFound.angle = angle;
-
-            return tileFound;
-        }
-        else {
             tileFound = find_h_tile2(x - COLLISION_TILE_SIZE * dir, y, stage, dir);
             tileFound.distance -= COLLISION_TILE_SIZE;
 

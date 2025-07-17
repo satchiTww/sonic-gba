@@ -294,12 +294,13 @@ static void normal_walls_collision(Player *player, const Stage *stage)
 
     int pushRadius = playerWidth + 1;
     int yoffset = 8 * (player->groundAngle == 0);
+    
+    int y = fixed8_to_int(player->yPos + player->ySpeed) + yoffset;
 
     //check for right wall collision
     if (player->groundSpeed > 0)
     {
         int x = fixed8_to_int(player->xPos + player->xSpeed) + pushRadius;
-        int y = fixed8_to_int(player->yPos + player->ySpeed) + yoffset;
 
         SolidTile wall = collision_find_horizontal_tile(x, y, stage, COLL_RIGHT);
 
@@ -311,7 +312,6 @@ static void normal_walls_collision(Player *player, const Stage *stage)
     else if (player->groundSpeed < 0)
     {
         int x = fixed8_to_int(player->xPos + player->xSpeed) - pushRadius;
-        int y = fixed8_to_int(player->yPos + player->ySpeed) + yoffset;
 
         SolidTile wall = collision_find_horizontal_tile(x, y, stage, COLL_LEFT);
 
