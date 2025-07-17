@@ -16,8 +16,8 @@ static fixed8 camBottomBorder   = FIXED8(101, 0);
 static fixed8 gravity = FIXED8(0, 53);
 
 static fixed8 slopeFactorNormal   = FIXED8(0, 52);
-static fixed8 slopeFactorRollup   = FIXED8(0, 20);
-static fixed8 slopeFactorRolldown = FIXED8(0, 80);
+//static fixed8 slopeFactorRollup   = FIXED8(0, 20);
+//static fixed8 slopeFactorRolldown = FIXED8(0, 80);
 
 static fixed8 debugModeAcc = FIXED8(0, 20);
 
@@ -55,6 +55,7 @@ static void airborne_collision(Player *player, const Stage *stage);
 
 static void debug_mode_move(Player *player);
 
+INLINE void flagged_tile_check(Player *player, const SolidTile *choosenTile);
 INLINE void bounds_collision(Player *player, const Stage *stage);
 INLINE void update_speed(Player *player);
 INLINE void update_position(Player *player);
@@ -141,13 +142,13 @@ void player_routine(Player *player, Camera *camera, const Stage *stage)
             
             airborne_airdrag(player);
 
-            airborne_camera_follow(player, camera);
-
             update_position(player);
             
             airborne_gravity(player);
 
             airborne_collision(player, stage);
+
+            airborne_camera_follow(player, camera);
         break;
 
         case STATE_DEBUG:
@@ -251,6 +252,8 @@ static void normal_camera_follow(Player *player, Camera *camera)
     fixed8 leftBorder    = camera->xPos + camLeftBorder;
     fixed8 verticalPoint = camera->yPos + camVerticalPoint;
 
+    fixed8 verticalPointCap = player->groundSpeed >= FIXED8(8, 0) ? FIXED8(22, 0) : FIXED8(4, 0);
+
     fixed8 playerTargetX = player->xPos;
     fixed8 playerTargetY = player->yPos;
 
@@ -261,8 +264,14 @@ static void normal_camera_follow(Player *player, Camera *camera)
         camera->xSpeed += playerTargetX - rightBorder;
     else if (playerTargetX < leftBorder)
         camera->xSpeed -= leftBorder - playerTargetX;
-    if (playerTargetY != verticalPoint)
+    
+    if (playerTargetY != verticalPoint) {
         camera->ySpeed += playerTargetY - verticalPoint;
+    }
+
+    if (mf_abs(camera->ySpeed) > verticalPointCap) {
+        camera->ySpeed = verticalPointCap * mf_sign(camera->ySpeed);
+    }
 }
 
 static void normal_ground_collision(Player *player, const Stage *stage)
@@ -276,16 +285,14 @@ static void normal_ground_collision(Player *player, const Stage *stage)
     SolidTile choosenTile = solidTileA.distance <= solidTileB.distance ? solidTileA : solidTileB;
 
     if (choosenTile.distance > mf_min(mf_abs(fixed8_to_int(player->xSpeed)) + 4, 14)) {
-        //player->state = STATE_AIRBORNE;
+        player->state = STATE_AIRBORNE;
         return;
     }
     player->yPos += FIXED8(choosenTile.distance, 0);
 
     player->groundAngle = choosenTile.angle;
 
-    if (choosenTile.angle == FLAGGED_ANGLE) {
-        player->groundAngle = ((player->groundAngle + 32) / 64) * 64;
-    }
+    flagged_tile_check(player, &choosenTile);
 }
 
 static void normal_walls_collision(Player *player, const Stage *stage)
@@ -326,7 +333,6 @@ static void normal_walls_collision(Player *player, const Stage *stage)
 
     player->isPushing = TRUE;
 }
-
 
 
 INLINE void airborne_move_right(Player *player)
@@ -370,8 +376,8 @@ static void airborne_camera_follow(Player *player, Camera *camera)
     fixed8 topBorder    = camera->yPos + camTopBorder;
     fixed8 bottomBorder = camera->yPos + camBottomBorder;
 
-    fixed8 playerTargetX = player->xPos + player->xSpeed;
-    fixed8 playerTargetY = player->yPos + player->ySpeed;
+    fixed8 playerTargetX = player->xPos;
+    fixed8 playerTargetY = player->yPos;
 
     camera->xSpeed = 0;
     camera->ySpeed = 0;
@@ -387,9 +393,185 @@ static void airborne_camera_follow(Player *player, Camera *camera)
         camera->ySpeed -= topBorder - playerTargetY;
 }
 
+INLINE void airborne_right_wall_collision(Player *player, const Stage *stage)
+{
+    int pushRadius = playerWidth + 6;
+    
+    int x = fixed8_to_int(player->xPos) + pushRadius;
+    int y = fixed8_to_int(player->yPos);
+
+    SolidTile rWall = collision_find_horizontal_tile(x, y, stage, COLL_RIGHT);
+
+    if (rWall.distance >= 0) return;
+
+    player->xPos += FIXED8(rWall.distance, 0);
+    player->xSpeed = 0;
+}
+INLINE void airborne_left_wall_collision(Player *player, const Stage *stage)
+{
+    int pushRadius = playerWidth + 6;
+    
+    int x = fixed8_to_int(player->xPos) - pushRadius;
+    int y = fixed8_to_int(player->yPos);
+
+    SolidTile lWall = collision_find_horizontal_tile(x, y, stage, COLL_LEFT);
+
+    if (lWall.distance >= 0) return;
+
+    player->xPos -= FIXED8(lWall.distance, 0);
+    player->xSpeed = 0;
+}
+INLINE void airborne_ground_collision(Player *player, const Stage *stage)
+{
+    int x = fixed8_to_int(player->xPos);
+    int y = fixed8_to_int(player->yPos) + playerHeight;
+
+    SolidTile solidTileA = collision_find_vertical_tile(x - playerWidth, y, stage, COLL_DOWN);
+    SolidTile solidTileB = collision_find_vertical_tile(x + playerWidth, y, stage, COLL_DOWN);
+
+    SolidTile choosenTile = solidTileA.distance <= solidTileB.distance ? solidTileA : solidTileB;
+
+    if (choosenTile.distance >= 0) return;
+
+    flagged_tile_check(player, &choosenTile);
+    
+    player->groundSpeed = player->xSpeed;
+
+    player->state = STATE_NORMAL;
+}
+INLINE void airborne_ceiling_collision(Player *player, const Stage *stage)
+{
+    int x = fixed8_to_int(player->xPos);
+    int y = fixed8_to_int(player->yPos) - playerHeight;
+
+    SolidTile solidTileA = collision_find_vertical_tile(x - playerWidth, y, stage, COLL_UP);
+    SolidTile solidTileB = collision_find_vertical_tile(x + playerWidth, y, stage, COLL_UP);
+
+    SolidTile choosenTile = solidTileA.distance <= solidTileB.distance ? solidTileA : solidTileB;
+
+    if (choosenTile.distance >= 0) return;
+
+    player->yPos -= FIXED8(choosenTile.distance, 0);
+}
+
 static void airborne_collision(Player *player, const Stage *stage)
 {
+    //get player move direction
+    u8 angle = angle_direction(fixed8_to_int(player->xSpeed), fixed8_to_int(player->ySpeed));
+    Direction dir;
+    if      (angle <= 31 || angle >= 224) dir = RIGHT;
+    else if (angle >= 32 && angle <= 95) dir = DOWN;
+    else if (angle >= 96 && angle <= 159) dir = LEFT;
+    else dir = UP;
 
+    switch (dir)
+    {
+        case RIGHT:
+
+            airborne_right_wall_collision(player, stage);
+
+            airborne_ground_collision(player, stage);
+
+            airborne_ceiling_collision(player, stage);
+
+        break;
+
+        case DOWN:
+
+            //floor collision check
+            {
+                int x = fixed8_to_int(player->xPos);
+                int y = fixed8_to_int(player->yPos) + playerHeight;
+    
+                SolidTile solidTileA = collision_find_vertical_tile(x - playerWidth, y, stage, COLL_DOWN);
+                SolidTile solidTileB = collision_find_vertical_tile(x + playerWidth, y, stage, COLL_DOWN);
+    
+                SolidTile choosenTile = solidTileA.distance <= solidTileB.distance ? solidTileA : solidTileB;
+    
+                if (choosenTile.distance < 0 &&
+                    solidTileA.distance >= -(fixed8_to_int(player->ySpeed) + 8) &&
+                    solidTileB.distance >= -(fixed8_to_int(player->ySpeed) + 8))
+                {
+        
+                    player->yPos += FIXED8(choosenTile.distance, 0);
+                    player->groundAngle = choosenTile.angle;
+        
+                    flagged_tile_check(player, &choosenTile);
+                    
+                    //decide ground speed based on the angle we landed
+                    //flat
+                    if (player->groundAngle <= 15 || player->groundAngle >= 240) {
+                        player->groundSpeed = player->xSpeed;
+                    }
+                    //slope
+                    else if (player->groundAngle <= 31 || player->groundAngle >= 224) {
+                        player->groundSpeed = (player->ySpeed / 2) * -mf_sign(-angle_sin(player->groundAngle));
+                    }
+                    //steep
+                    else {
+                        player->groundSpeed = player->ySpeed * -mf_sign(-angle_sin(player->groundAngle));
+                    }
+    
+                    player->state = STATE_NORMAL;
+                }
+            }
+
+            //walls collision check
+            airborne_right_wall_collision(player, stage);
+            airborne_left_wall_collision(player, stage);
+
+        break;
+
+        case LEFT:
+
+            airborne_left_wall_collision(player, stage);
+
+            airborne_ground_collision(player, stage);
+
+            airborne_ceiling_collision(player, stage);
+
+        break;
+
+        case UP:
+
+            //ceiling collision check
+            {
+                int x = fixed8_to_int(player->xPos);
+                int y = fixed8_to_int(player->yPos) - playerHeight;
+    
+                SolidTile solidTileA = collision_find_vertical_tile(x - playerWidth, y, stage, COLL_UP);
+                SolidTile solidTileB = collision_find_vertical_tile(x + playerWidth, y, stage, COLL_UP);
+    
+                SolidTile choosenTile = solidTileA.distance <= solidTileB.distance ? solidTileA : solidTileB;
+    
+                if (choosenTile.distance < 0)
+                {
+                    player->yPos -= FIXED8(choosenTile.distance, 0);
+                    
+                    //decide ground speed based on the angle we landed
+                    //flat
+                    if (choosenTile.angle >= 66 && choosenTile.angle <= 191) {
+                        player->ySpeed = 0;
+                    }
+                    //steep
+                    else {
+                        player->groundSpeed = player->ySpeed * -mf_sign(-angle_sin(player->groundAngle));
+    
+                        player->groundAngle = choosenTile.angle;
+    
+                        flagged_tile_check(player, &choosenTile);
+    
+                        player->state = STATE_NORMAL;
+                    }
+                }
+            }
+
+            //walls collision check
+            airborne_right_wall_collision(player, stage);
+            airborne_left_wall_collision(player, stage);
+
+        break;
+    }
 }
 
 static void debug_mode_move(Player *player)
@@ -411,14 +593,23 @@ static void debug_mode_move(Player *player)
     player->yPos += player->ySpeed;
 }
 
+INLINE void flagged_tile_check(Player *player, const SolidTile *choosenTile)
+{
+    if (choosenTile->angle != FLAGGED_ANGLE) return;
+
+    player->groundAngle = ((player->groundAngle + 32) / 64) * 64;
+}
+
 INLINE void bounds_collision(Player *player, const Stage *stage)
 {
-    if (player->xPos - FIXED8(playerWidth, 0) < 0) {
-        player->xPos += 0 - (player->xPos - FIXED8(playerWidth, 0));
+    int pushRadius = playerWidth + 6;
+
+    if (player->xPos - FIXED8(pushRadius, 0) < 0) {
+        player->xPos += 0 - (player->xPos - FIXED8(pushRadius, 0));
         player->xSpeed /= 2;
     }
-    else if (player->xPos + FIXED8(playerWidth, 0) > FIXED8(stage->mapWidth, 0)) {
-        player->xPos -= (player->xPos + FIXED8(playerWidth, 0)) - FIXED8(stage->mapWidth, 0);
+    else if (player->xPos + FIXED8(pushRadius, 0) > FIXED8(stage->mapWidth, 0)) {
+        player->xPos -= (player->xPos + FIXED8(pushRadius, 0)) - FIXED8(stage->mapWidth, 0);
         player->xSpeed /= 2;
     }
 
@@ -437,7 +628,6 @@ INLINE void update_speed(Player *player)
     player->xSpeed = (player->groundSpeed * angle_cos(player->groundAngle)) >> 8;
     player->ySpeed = (player->groundSpeed * -angle_sin(player->groundAngle)) >> 8;
 }
-
 
 INLINE void update_position(Player *player)
 {

@@ -30,7 +30,7 @@ INLINE u8 get_tile_angle(const TileInfo *tileInfo, const u8 *angleData)
     return angle;
 }
 
-SolidTile find_v_tile2(int x, int y, const Stage *stage)
+SolidTile find_v_tile2(int x, int y, const Stage *stage, CollisionFloorDir dir)
 {
     if (x < 0 || y < 0 || x > stage->mapWidth || y > stage->mapHeight) return (SolidTile){0};
 
@@ -43,14 +43,16 @@ SolidTile find_v_tile2(int x, int y, const Stage *stage)
     height = get_tile_height(x, &tile, stage->collisionHeightData);
     angle = get_tile_angle(&tile, stage->collisionAngleData);
 
+    if (dir < 0) angle = (-(angle + 64)) - 64;
+
     if (height > 0) {
-        int tileSurface = COLLISION_TILE_SIZE - (height + y % COLLISION_TILE_SIZE);
+        int tileSurface = dir > 0 ? COLLISION_TILE_SIZE - (height + y % COLLISION_TILE_SIZE) : y % COLLISION_TILE_SIZE - height;
         
         return (SolidTile){tileSurface, angle};
     }
 
     //no tile found
-    int tileEdge = COLLISION_TILE_SIZE - (y % COLLISION_TILE_SIZE);
+    int tileEdge = dir > 0 ? COLLISION_TILE_SIZE - (y % COLLISION_TILE_SIZE) : y % COLLISION_TILE_SIZE;
     return (SolidTile){tileEdge, angle};
 }
 
@@ -68,16 +70,18 @@ SolidTile collision_find_vertical_tile(int x, int y, const Stage *stage, Collisi
     height = get_tile_height(x, &tile, stage->collisionHeightData);
     angle = get_tile_angle(&tile, stage->collisionAngleData);
 
+    if (dir < 0) angle = (-(angle + 64)) - 64;
+
     if (height > 0) //height found is between 1 and 16
     {
         if (height != COLLISION_TILE_SIZE) { //normal tile, process this tile
-            tileFound.distance = COLLISION_TILE_SIZE - (height + y % COLLISION_TILE_SIZE);
+            tileFound.distance = dir > 0 ? COLLISION_TILE_SIZE - (height + y % COLLISION_TILE_SIZE) : y % COLLISION_TILE_SIZE - height;
             tileFound.angle    = angle;
 
             return tileFound;
         }
         else { //full tile, check tile above
-            tileFound = find_v_tile2(x, y - COLLISION_TILE_SIZE, stage);
+            tileFound = find_v_tile2(x, y - COLLISION_TILE_SIZE * dir, stage, dir);
             tileFound.distance -= COLLISION_TILE_SIZE;
 
             return tileFound;
@@ -85,7 +89,7 @@ SolidTile collision_find_vertical_tile(int x, int y, const Stage *stage, Collisi
     }
 
     //height is 0 (no tile found, check tile bellow)
-    tileFound = find_v_tile2(x, y + COLLISION_TILE_SIZE, stage);
+    tileFound = find_v_tile2(x, y + COLLISION_TILE_SIZE * dir, stage, dir);
     tileFound.distance += COLLISION_TILE_SIZE;
     return tileFound;
 }
@@ -102,6 +106,8 @@ SolidTile find_h_tile2(int x, int y, const Stage *stage, CollisionWallDir dir)
 
     width = get_tile_width(y, &tile, stage->collisionWidthData);
     angle = get_tile_angle(&tile, stage->collisionAngleData);
+
+    if (dir < 0) angle = ~angle;
 
     if (width > 0) {
         int tileSurface = dir > 0 ? COLLISION_TILE_SIZE - (width + x % COLLISION_TILE_SIZE) : x % COLLISION_TILE_SIZE - width;
@@ -125,8 +131,11 @@ SolidTile collision_find_horizontal_tile(int x, int y, const Stage *stage, Colli
     u8 angle;
 
     tile = collision_get_tile_info(x/COLLISION_TILE_SIZE, y/COLLISION_TILE_SIZE, stage);
+    
     width = get_tile_width(y, &tile, stage->collisionWidthData);
     angle = get_tile_angle(&tile, stage->collisionAngleData);
+
+    if (dir < 0) angle = ~angle;
 
     if (width > 0)
     {

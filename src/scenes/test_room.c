@@ -51,7 +51,7 @@ static void test_room_init(void)
     obj_init_oam();
 
     camera = camera_create(0, FIXED8(64, 0), FIXED8(stageTestRoom.mapWidth, 0), FIXED8(stageTestRoom.mapHeight, 0));
-    player = player_create(FIXED8(48, 0), FIXED8(219, 0), STATE_NORMAL, CHAR_TETO, &spriteNode);
+    player = player_create(FIXED8(48, 0), FIXED8(219, 0), STATE_AIRBORNE, CHAR_TETO, &spriteNode);
 }
 
 static void test_room_update(void)
@@ -62,7 +62,7 @@ static void test_room_update(void)
         player->yPos = FIXED8(219, 0);
         player->groundSpeed = 0;
         player->groundAngle = 0;
-        player->state = STATE_NORMAL;
+        player->state = STATE_AIRBORNE;
     }
     if (player->state != STATE_DEBUG && key_hit(KEY_L)) {
         player->groundSpeed = 0;
@@ -70,13 +70,13 @@ static void test_room_update(void)
         player->state = STATE_DEBUG;
     }
     else if (player->state == STATE_DEBUG && key_hit(KEY_L)) {
-        player->state = STATE_NORMAL;
+        player->state = STATE_AIRBORNE;
     }
-
+    
     player_routine(player, camera, &stageTestRoom);
 
     camera_update_position(camera);
-
+    
     player_animate(player, camera);
 
     move_bg1();

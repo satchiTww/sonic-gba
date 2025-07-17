@@ -25,10 +25,10 @@ static const AnimSpriteFrame runFrames[] = {
 };
 
 static const AnimSpriteFrame pushFrames[] = {
-    { teto_push_0ObjShapes, (u32)_sizeof_teto_push_0ObjShapes, teto_push0Tiles, (u32)_sizeof_teto_push0Tiles, -6, 0, 0},
-    { teto_push_1ObjShapes, (u32)_sizeof_teto_push_1ObjShapes, teto_push1Tiles, (u32)_sizeof_teto_push1Tiles, -6, 0, 0},
-    { teto_push_2ObjShapes, (u32)_sizeof_teto_push_2ObjShapes, teto_push2Tiles, (u32)_sizeof_teto_push2Tiles, -6, 0, 0},
-    { teto_push_3ObjShapes, (u32)_sizeof_teto_push_3ObjShapes, teto_push3Tiles, (u32)_sizeof_teto_push3Tiles, -6, 0, 0},
+    { teto_push_0ObjShapes, (u32)_sizeof_teto_push_0ObjShapes, teto_push0Tiles, (u32)_sizeof_teto_push0Tiles, -5, -4, 0},
+    { teto_push_1ObjShapes, (u32)_sizeof_teto_push_1ObjShapes, teto_push1Tiles, (u32)_sizeof_teto_push1Tiles, -5, -4, 0},
+    { teto_push_2ObjShapes, (u32)_sizeof_teto_push_2ObjShapes, teto_push2Tiles, (u32)_sizeof_teto_push2Tiles, -5, -4, 0},
+    { teto_push_3ObjShapes, (u32)_sizeof_teto_push_3ObjShapes, teto_push3Tiles, (u32)_sizeof_teto_push3Tiles, -5, -4, 0},
 };
 
 AnimatedSprite animTeto[NUM_OF_PLAYER_ANIM] = {

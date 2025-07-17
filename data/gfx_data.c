@@ -25,8 +25,8 @@ IMPORT_BIN_TO_ROM("data/bin/tiles/teto_push_2Tiles.bin", teto_push2Tiles);
 IMPORT_BIN_TO_ROM("data/bin/tiles/teto_push_3Tiles.bin", teto_push3Tiles);
 
 IMPORT_BIN_TO_ROM("data/bin/tiles/background_0.img.bin", bg0Tiles);
-IMPORT_BIN_TO_ROM("data/bin/tiles/test_zone_layout.img.bin", test_zone_layoutTiles);
+IMPORT_BIN_TO_ROM("data/bin/tiles/testzone_layout.img.bin", test_zone_layoutTiles);
 
 //MAP
 IMPORT_BIN_TO_ROM("data/bin/map/background_0.map.bin", bg0Map);
-IMPORT_BIN_TO_ROM("data/bin/map/test_zone_layout.map.bin", test_zone_layoutMap);
+IMPORT_BIN_TO_ROM("data/bin/map/testzone_layout.map.bin", test_zone_layoutMap);

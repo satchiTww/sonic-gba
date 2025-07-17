@@ -7,6 +7,13 @@ typedef s32 fixed8;
 
 #define FIXED8(integer, fraction) (((integer) << (8)) | ((fraction) & (0xFF)))
 
+typedef enum {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+} Direction;
+
 INLINE s32 mf_min(s32 a, s32 b)
 {    return a < b ? a : b;    }
 

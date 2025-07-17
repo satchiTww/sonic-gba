@@ -15,7 +15,15 @@ SRC_FILES    := $(shell find $(SRC_DIR) -name '*.c')
 DATA_DIR     := data
 DATA_FILES   := $(shell find $(DATA_DIR) -name '*.c')
 DATA_BIN_DIR := $(DATA_DIR)/bin
-DATA_BIN_FILES := $(shell find $(DATA_BIN_DIR) -name '*.bin')
+
+DATA_BIN_GFX := $(shell find $(DATA_BIN_DIR)/bmp -name '*.bin')
+DATA_BIN_GFX += $(shell find $(DATA_BIN_DIR)/map -name '*.bin')
+DATA_BIN_GFX += $(shell find $(DATA_BIN_DIR)/pal -name '*.bin')
+DATA_BIN_GFX += $(shell find $(DATA_BIN_DIR)/tiles -name '*.bin')
+
+DATA_BIN_OBJ_SHAPES := $(shell find $(DATA_BIN_DIR)/obj_shapes -name '*.bin')
+
+DATA_BIN_SOLID_TILES := $(shell find $(DATA_BIN_DIR)/solidTile -name '*.bin')
 
 BUILD_DIR    := build
 OBJ_FILES    := $(SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
@@ -54,7 +62,9 @@ $(BUILD_DIR)/%.o: %.c
 	$(info Compiling $< to $@...)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/gfx_data.o: $(DATA_BIN_FILES)
+$(BUILD_DIR)/gfx_data.o: $(DATA_BIN_GFX)
+$(BUILD_DIR)/obj_shape_data.o: $(DATA_BIN_OBJ_SHAPES)
+$(BUILD_DIR)/solid_tiles_data.o: $(DATA_BIN_SOLID_TILES)
 
 $(BUILD_DIR)/%.o: %.s
 	$(DIR_DUP)
