@@ -1,9 +1,20 @@
+#include <stdlib.h>
 #include "gba.h"
 #include "player.h"
 #include "collision.h"
-#include <stdlib.h>
+#include "data/include/sprite_data.h"
+#include "data/include/animation_data.h"
 
-static playerCharData charData;
+#define DEFAULT_ACCEL      FIXED8(0, 10)
+#define DEFAULT_DECEL      FIXED8(0, 128)
+#define DEFAULT_FRIC       FIXED8(0, 10)
+#define DEFAULT_AIR_ACCEL  FIXED8(0, 24)
+#define DEFAULT_MAXSPD     FIXED8(5, 0)
+#define DEFAULT_MAXVERTSPD FIXED8(14, 0)
+
+static playerCharData playerCharTable[NUM_OF_PLAYER_CHARS] = {
+    [CHAR_TETO] = {teto_pal, (u32)_sizeof_teto_pal, animTeto, 5, 20}
+};
 
 static int animDuration;
 
@@ -19,21 +30,7 @@ static fixed8 slopeFactorNormal   = FIXED8(0, 52);
 //static fixed8 slopeFactorRollup   = FIXED8(0, 20);
 //static fixed8 slopeFactorRolldown = FIXED8(0, 80);
 
-static fixed8 debugModeAcc = FIXED8(0, 20);
-
-
-/*==========PLAYER VARIABLES===========================*/
-//TODO: Set variables specific to different characters
-static int playerWidth;
-static int playerHeight;
-
-static fixed8 playerAcc = FIXED8(0, 10);
-static fixed8 playerDecel = FIXED8(0, 128);
-static fixed8 playerFric = FIXED8(0, 10);
-static fixed8 playerAirAcc = FIXED8(0, 24);
-
-static fixed8 playerMaxSpeed = FIXED8(5, 0);
-static fixed8 playerMaxVerticalSpeed = FIXED8(16, 0);
+static fixed8 debugModeAcc = FIXED8(0, 30);
 
 /*==========PRIVATE FUNCTIONS===================*/
 INLINE void normal_slope_force(Player *player);
@@ -56,7 +53,7 @@ static void airborne_collision(Player *player, const Stage *stage);
 static void debug_mode_move(Player *player);
 
 INLINE void flagged_tile_check(Player *player, const SolidTile *choosenTile);
-INLINE void bounds_collision(Player *player, const Stage *stage);
+INLINE void bounds_collision(Player *player, const Camera *camera);
 INLINE void update_speed(Player *player);
 INLINE void update_position(Player *player);
 
@@ -66,24 +63,33 @@ INLINE void update_position(Player *player);
 Player *player_create(fixed8 xPos, fixed8 yPos, playerState state, playerCharacter character, struct SpriteListNode **sprNode)
 {
     Player *player;
+    playerCharData charData;
 
     player = (Player *)calloc(1, sizeof(Player));
+
+    charData = playerCharTable[character];
 
     player->xPos = xPos;
     player->yPos = yPos;
     player->state = state;
 
-    charData = playerCharTable[character];
-
-    playerWidth = charData.width;
-    playerHeight = charData.height;
+    player->width  = charData.width;
+    player->height = charData.height;
+    player->pushRadius = player->width + 6;
+    player->accel = DEFAULT_ACCEL;
+    player->decel = DEFAULT_DECEL;
+    player->fric = DEFAULT_FRIC;
+    player->airAccel = DEFAULT_AIR_ACCEL;
+    player->maxSpd = DEFAULT_MAXSPD;
+    player->maxVerticSpd = DEFAULT_MAXVERTSPD;
 
     //sprite load
-    player->sprite = sprite_create(sprNode, 0, 0, 0, 0, 0, 0, 1, (ObjShape*)0);
-    
+    player->sprite = sprite_create(sprNode, 0, 0, 0, 0, 0, 5, 1, (ObjShape*)0);
+    player->anim = charData.playerAnim;
+
     palette_load(charData.palData, charData.palDataLenght, PAL_OAM_INDEX);
 
-    sprite_set_animation(player->sprite, &charData.playerAnim[ANIM_IDLE]);
+    sprite_set_animation(player->sprite, &player->anim[ANIM_IDLE]);
 
     return player;
 }
@@ -100,22 +106,25 @@ void player_routine(Player *player, Camera *camera, const Stage *stage)
 
             if (key_is_down(KEY_RIGHT)) {
 
-                if (player->groundSpeed < 0)
+                if (player->groundSpeed < 0) {
                     normal_decelerate_right(player);
+                }
                 
                 normal_move_right(player);
 
             }
             if (key_is_down(KEY_LEFT)) {
 
-                if (player->groundSpeed > 0)
+                if (player->groundSpeed > 0) {
                     normal_decelerate_left(player);
+                }
                 
                 normal_move_left(player);
 
             }
-            if (!key_is_down(KEY_RIGHT | KEY_LEFT))
+            if (!key_is_down(KEY_RIGHT | KEY_LEFT)) {
                 normal_friction(player);
+            }
 
             update_speed(player);
             
@@ -134,11 +143,12 @@ void player_routine(Player *player, Camera *camera, const Stage *stage)
 
         case STATE_AIRBORNE:
 
-            if (key_is_down(KEY_RIGHT))
+            if (key_is_down(KEY_RIGHT)) {
                 airborne_move_right(player);
-
-            if (key_is_down(KEY_LEFT))
+            }
+            if (key_is_down(KEY_LEFT)) {
                 airborne_move_left(player);
+            }
             
             airborne_airdrag(player);
 
@@ -159,7 +169,7 @@ void player_routine(Player *player, Camera *camera, const Stage *stage)
         break;
     }
 
-    bounds_collision(player, stage);
+    bounds_collision(player, camera);
 
 }
 
@@ -177,14 +187,14 @@ void player_animate(Player *player, Camera *camera)
     {
         animDuration = mf_max(0, 8 - mf_abs(fixed8_to_int(player->groundSpeed)));
     
-        if (mf_abs(player->groundSpeed) >= playerMaxSpeed) {
-            sprite_set_animation(player->sprite, &charData.playerAnim[ANIM_RUN]);
+        if (mf_abs(player->groundSpeed) >= player->maxSpd) {
+            sprite_set_animation(player->sprite, &player->anim[ANIM_RUN]);
         } 
         else if (player->groundSpeed != 0) {
-            sprite_set_animation(player->sprite, &charData.playerAnim[ANIM_WALK]);
+            sprite_set_animation(player->sprite, &player->anim[ANIM_WALK]);
         }
         else {
-            sprite_set_animation(player->sprite, &charData.playerAnim[ANIM_IDLE]);
+            sprite_set_animation(player->sprite, &player->anim[ANIM_IDLE]);
             animDuration = 0;
         }
     }
@@ -209,41 +219,41 @@ INLINE void normal_slope_force(Player *player)
 
 INLINE void normal_move_right(Player *player)
 {
-    if (player->groundSpeed < playerMaxSpeed) {
-        player->groundSpeed += playerAcc;
-        if (player->groundSpeed >= playerMaxSpeed) {
-            player->groundSpeed = playerMaxSpeed;
+    if (player->groundSpeed < player->maxSpd) {
+        player->groundSpeed += player->accel;
+        if (player->groundSpeed >= player->maxSpd) {
+            player->groundSpeed = player->maxSpd;
         }
     }
 }
 
 INLINE void normal_decelerate_right(Player *player)
 {
-    player->groundSpeed += playerDecel;
+    player->groundSpeed += player->decel;
     if (player->groundSpeed >= 0)
         player->groundSpeed = FIXED8(0, 128);
 }
 
 INLINE void normal_move_left(Player *player)
 {
-    if (player->groundSpeed > -playerMaxSpeed) {
-        player->groundSpeed -= playerAcc;
-        if (player->groundSpeed <= -playerMaxSpeed) {
-            player->groundSpeed = -playerMaxSpeed;
+    if (player->groundSpeed > -player->maxSpd) {
+        player->groundSpeed -= player->accel;
+        if (player->groundSpeed <= -player->maxSpd) {
+            player->groundSpeed = -player->maxSpd;
         }
     }
 }
 
 INLINE void normal_decelerate_left(Player *player)
 {
-    player->groundSpeed -= playerDecel;
+    player->groundSpeed -= player->decel;
     if (player->groundSpeed <= 0)
         player->groundSpeed = -FIXED8(0, 128);
 }
 
 INLINE void normal_friction(Player *player)
 {
-    player->groundSpeed -= mf_min(mf_abs(player->groundSpeed), playerFric) * mf_sign(player->groundSpeed);
+    player->groundSpeed -= mf_min(mf_abs(player->groundSpeed), player->fric) * mf_sign(player->groundSpeed);
 }
 
 static void normal_camera_follow(Player *player, Camera *camera)
@@ -277,10 +287,10 @@ static void normal_camera_follow(Player *player, Camera *camera)
 static void normal_ground_collision(Player *player, const Stage *stage)
 {
     int x = fixed8_to_int(player->xPos);
-    int y = fixed8_to_int(player->yPos) + playerHeight;
+    int y = fixed8_to_int(player->yPos) + player->height;
 
-    SolidTile solidTileA = collision_find_vertical_tile(x - playerWidth, y, stage, COLL_DOWN);
-    SolidTile solidTileB = collision_find_vertical_tile(x + playerWidth, y, stage, COLL_DOWN);
+    SolidTile solidTileA = collision_find_vertical_tile(x - player->width, y, stage, COLL_DOWN);
+    SolidTile solidTileB = collision_find_vertical_tile(x + player->width, y, stage, COLL_DOWN);
 
     SolidTile choosenTile = solidTileA.distance <= solidTileB.distance ? solidTileA : solidTileB;
 
@@ -299,7 +309,6 @@ static void normal_walls_collision(Player *player, const Stage *stage)
 {
     if (player->groundSpeed == 0) return;
 
-    int pushRadius = playerWidth + 6;
     int yoffset = 8 * (player->groundAngle == 0);
     
     int y = fixed8_to_int(player->yPos + player->ySpeed) + yoffset;
@@ -307,7 +316,7 @@ static void normal_walls_collision(Player *player, const Stage *stage)
     //check for right wall collision
     if (player->groundSpeed > 0)
     {
-        int x = fixed8_to_int(player->xPos + player->xSpeed) + pushRadius;
+        int x = fixed8_to_int(player->xPos + player->xSpeed) + player->pushRadius;
 
         SolidTile wall = collision_find_horizontal_tile(x, y, stage, COLL_RIGHT);
 
@@ -318,7 +327,7 @@ static void normal_walls_collision(Player *player, const Stage *stage)
     }
     else if (player->groundSpeed < 0)
     {
-        int x = fixed8_to_int(player->xPos + player->xSpeed) - pushRadius;
+        int x = fixed8_to_int(player->xPos + player->xSpeed) - player->pushRadius;
 
         SolidTile wall = collision_find_horizontal_tile(x, y, stage, COLL_LEFT);
 
@@ -328,7 +337,7 @@ static void normal_walls_collision(Player *player, const Stage *stage)
         player->groundSpeed = 0;
     }
 
-    sprite_set_animation(player->sprite, &charData.playerAnim[ANIM_PUSH]);
+    sprite_set_animation(player->sprite, &player->anim[ANIM_PUSH]);
     animDuration = mf_max(0, 8 - mf_abs(fixed8_to_int(player->groundSpeed))) * 4;
 
     player->isPushing = TRUE;
@@ -337,20 +346,20 @@ static void normal_walls_collision(Player *player, const Stage *stage)
 
 INLINE void airborne_move_right(Player *player)
 {
-    if (player->xSpeed < playerMaxSpeed) {
-        player->xSpeed += playerAirAcc;
-        if (player->xSpeed >= playerMaxSpeed) {
-            player->xSpeed = playerMaxSpeed;
+    if (player->xSpeed < player->maxSpd) {
+        player->xSpeed += player->airAccel;
+        if (player->xSpeed >= player->maxSpd) {
+            player->xSpeed = player->maxSpd;
         }
     }
 }
 
 INLINE void airborne_move_left(Player *player)
 {
-    if (player->xSpeed > -playerMaxSpeed) {
-        player->xSpeed -= playerAirAcc;
-        if (player->xSpeed <= -playerMaxSpeed) {
-            player->xSpeed = -playerMaxSpeed;
+    if (player->xSpeed > -player->maxSpd) {
+        player->xSpeed -= player->airAccel;
+        if (player->xSpeed <= -player->maxSpd) {
+            player->xSpeed = -player->maxSpd;
         }
     }
 }
@@ -365,8 +374,8 @@ INLINE void airborne_airdrag(Player *player)
 INLINE void airborne_gravity(Player *player)
 {
     player->ySpeed += gravity;
-    if (player->ySpeed > playerMaxVerticalSpeed)
-        player->ySpeed = playerMaxVerticalSpeed;
+    if (player->ySpeed > player->maxVerticSpd)
+        player->ySpeed = player->maxVerticSpd;
 }
 
 static void airborne_camera_follow(Player *player, Camera *camera)
@@ -376,28 +385,26 @@ static void airborne_camera_follow(Player *player, Camera *camera)
     fixed8 topBorder    = camera->yPos + camTopBorder;
     fixed8 bottomBorder = camera->yPos + camBottomBorder;
 
-    fixed8 playerTargetX = player->xPos;
-    fixed8 playerTargetY = player->yPos;
+    fixed8 targetX = player->xPos;
+    fixed8 targetY = player->yPos;
 
     camera->xSpeed = 0;
     camera->ySpeed = 0;
 
-    if (playerTargetX > rightBorder)
-        camera->xSpeed += playerTargetX - rightBorder;
-    else if (playerTargetX < leftBorder)
-        camera->xSpeed -= leftBorder - playerTargetX;
+    if (targetX > rightBorder)
+        camera->xSpeed += targetX - rightBorder;
+    else if (targetX < leftBorder)
+        camera->xSpeed -= leftBorder - targetX;
     
-    if (playerTargetY > bottomBorder)
-        camera->ySpeed += playerTargetY - bottomBorder;
-    else if (playerTargetY < topBorder)
-        camera->ySpeed -= topBorder - playerTargetY;
+    if (targetY > bottomBorder)
+        camera->ySpeed += targetY - bottomBorder;
+    else if (targetY < topBorder)
+        camera->ySpeed -= topBorder - targetY;
 }
 
 INLINE void airborne_right_wall_collision(Player *player, const Stage *stage)
 {
-    int pushRadius = playerWidth + 6;
-    
-    int x = fixed8_to_int(player->xPos) + pushRadius;
+    int x = fixed8_to_int(player->xPos) + player->pushRadius;
     int y = fixed8_to_int(player->yPos);
 
     SolidTile rWall = collision_find_horizontal_tile(x, y, stage, COLL_RIGHT);
@@ -409,9 +416,7 @@ INLINE void airborne_right_wall_collision(Player *player, const Stage *stage)
 }
 INLINE void airborne_left_wall_collision(Player *player, const Stage *stage)
 {
-    int pushRadius = playerWidth + 6;
-    
-    int x = fixed8_to_int(player->xPos) - pushRadius;
+    int x = fixed8_to_int(player->xPos) - player->pushRadius;
     int y = fixed8_to_int(player->yPos);
 
     SolidTile lWall = collision_find_horizontal_tile(x, y, stage, COLL_LEFT);
@@ -424,10 +429,10 @@ INLINE void airborne_left_wall_collision(Player *player, const Stage *stage)
 INLINE void airborne_ground_collision(Player *player, const Stage *stage)
 {
     int x = fixed8_to_int(player->xPos);
-    int y = fixed8_to_int(player->yPos) + playerHeight;
+    int y = fixed8_to_int(player->yPos) + player->height;
 
-    SolidTile solidTileA = collision_find_vertical_tile(x - playerWidth, y, stage, COLL_DOWN);
-    SolidTile solidTileB = collision_find_vertical_tile(x + playerWidth, y, stage, COLL_DOWN);
+    SolidTile solidTileA = collision_find_vertical_tile(x - player->width, y, stage, COLL_DOWN);
+    SolidTile solidTileB = collision_find_vertical_tile(x + player->width, y, stage, COLL_DOWN);
 
     SolidTile choosenTile = solidTileA.distance <= solidTileB.distance ? solidTileA : solidTileB;
 
@@ -435,6 +440,7 @@ INLINE void airborne_ground_collision(Player *player, const Stage *stage)
 
     flagged_tile_check(player, &choosenTile);
     
+    player->yPos += FIXED8(choosenTile.distance, 0);
     player->groundSpeed = player->xSpeed;
 
     player->state = STATE_NORMAL;
@@ -442,16 +448,17 @@ INLINE void airborne_ground_collision(Player *player, const Stage *stage)
 INLINE void airborne_ceiling_collision(Player *player, const Stage *stage)
 {
     int x = fixed8_to_int(player->xPos);
-    int y = fixed8_to_int(player->yPos) - playerHeight;
+    int y = fixed8_to_int(player->yPos) - player->height;
 
-    SolidTile solidTileA = collision_find_vertical_tile(x - playerWidth, y, stage, COLL_UP);
-    SolidTile solidTileB = collision_find_vertical_tile(x + playerWidth, y, stage, COLL_UP);
+    SolidTile solidTileA = collision_find_vertical_tile(x - player->width, y, stage, COLL_UP);
+    SolidTile solidTileB = collision_find_vertical_tile(x + player->width, y, stage, COLL_UP);
 
     SolidTile choosenTile = solidTileA.distance <= solidTileB.distance ? solidTileA : solidTileB;
 
     if (choosenTile.distance >= 0) return;
 
     player->yPos -= FIXED8(choosenTile.distance, 0);
+    player->ySpeed = 0;
 }
 
 static void airborne_collision(Player *player, const Stage *stage)
@@ -481,10 +488,10 @@ static void airborne_collision(Player *player, const Stage *stage)
             //floor collision check
             {
                 int x = fixed8_to_int(player->xPos);
-                int y = fixed8_to_int(player->yPos) + playerHeight;
+                int y = fixed8_to_int(player->yPos) + player->height;
     
-                SolidTile solidTileA = collision_find_vertical_tile(x - playerWidth, y, stage, COLL_DOWN);
-                SolidTile solidTileB = collision_find_vertical_tile(x + playerWidth, y, stage, COLL_DOWN);
+                SolidTile solidTileA = collision_find_vertical_tile(x - player->width, y, stage, COLL_DOWN);
+                SolidTile solidTileB = collision_find_vertical_tile(x + player->width, y, stage, COLL_DOWN);
     
                 SolidTile choosenTile = solidTileA.distance <= solidTileB.distance ? solidTileA : solidTileB;
     
@@ -537,10 +544,10 @@ static void airborne_collision(Player *player, const Stage *stage)
             //ceiling collision check
             {
                 int x = fixed8_to_int(player->xPos);
-                int y = fixed8_to_int(player->yPos) - playerHeight;
+                int y = fixed8_to_int(player->yPos) - player->height;
     
-                SolidTile solidTileA = collision_find_vertical_tile(x - playerWidth, y, stage, COLL_UP);
-                SolidTile solidTileB = collision_find_vertical_tile(x + playerWidth, y, stage, COLL_UP);
+                SolidTile solidTileA = collision_find_vertical_tile(x - player->width, y, stage, COLL_UP);
+                SolidTile solidTileB = collision_find_vertical_tile(x + player->width, y, stage, COLL_UP);
     
                 SolidTile choosenTile = solidTileA.distance <= solidTileB.distance ? solidTileA : solidTileB;
     
@@ -600,25 +607,31 @@ INLINE void flagged_tile_check(Player *player, const SolidTile *choosenTile)
     player->groundAngle = ((player->groundAngle + 32) / 64) * 64;
 }
 
-INLINE void bounds_collision(Player *player, const Stage *stage)
+INLINE void bounds_collision(Player *player, const Camera *camera)
 {
-    int pushRadius = playerWidth + 6;
+    fixed8 x, y, xx, yy;
 
-    if (player->xPos - FIXED8(pushRadius, 0) < 0) {
-        player->xPos += 0 - (player->xPos - FIXED8(pushRadius, 0));
+    x = player->xPos - FIXED8(player->pushRadius, 0);
+    y = player->yPos - FIXED8(player->height, 0);
+    xx = player->xPos + FIXED8(player->pushRadius, 0);
+    yy = player->yPos + FIXED8(player->height, 0);
+
+
+    if (x < camera->minHorizBorder) {
+        player->xPos += camera->minHorizBorder - x;
         player->xSpeed /= 2;
     }
-    else if (player->xPos + FIXED8(pushRadius, 0) > FIXED8(stage->mapWidth, 0)) {
-        player->xPos -= (player->xPos + FIXED8(pushRadius, 0)) - FIXED8(stage->mapWidth, 0);
+    else if (xx > camera->maxHorizBorder) {
+        player->xPos -= xx - camera->maxHorizBorder;
         player->xSpeed /= 2;
     }
 
-    if (player->yPos - FIXED8(playerHeight, 0) < 0) {
-        player->yPos += 0 - (player->yPos - FIXED8(playerHeight, 0));
+    if (y < camera->minVertBorder) {
+        player->yPos += camera->minVertBorder - y;
         player->ySpeed /= 2;
     }
-    else if (player->yPos + FIXED8(playerHeight, 0) > FIXED8(stage->mapHeight, 0)) {
-        player->yPos -= (player->yPos + FIXED8(playerHeight, 0)) - FIXED8(stage->mapHeight, 0);
+    else if (yy > camera->maxVertBorder) {
+        player->yPos -= yy - camera->maxVertBorder;
         player->ySpeed /= 2;
     }
 }

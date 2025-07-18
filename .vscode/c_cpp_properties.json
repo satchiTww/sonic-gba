@@ -8,9 +8,6 @@
                 "${workspaceFolder}/gba/include**"
             ],
             "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
             ],
             "windowsSdkVersion": "10.0.22621.0",
             "cStandard": "c17",

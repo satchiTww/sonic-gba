@@ -33,7 +33,6 @@ typedef enum {
 } playerAnimations;
 
 typedef struct {
-
     fixed8 xPos, yPos;
     fixed8 xSpeed, ySpeed;
     fixed8 groundSpeed;
@@ -41,21 +40,32 @@ typedef struct {
 
     playerState state;
 
+    u32 width;
+    u32 height;
+    u32 pushRadius;
+
+    fixed8 accel;
+    fixed8 decel;
+    fixed8 fric;
+    fixed8 airAccel;
+    fixed8 maxSpd;
+    fixed8 maxVerticSpd;
+
     //flags
-    u8 isPushing:1;
+    u32 isPushing:1;
     
     Sprite *sprite;
+    AnimatedSprite *anim;
+
 } Player;
 
 typedef struct {
     const u16 *palData;
-    int palDataLenght;
+    u32 palDataLenght;
     AnimatedSprite *playerAnim;
-    int width;
-    int height;
+    u32 width;
+    u32 height;
 } playerCharData;
-
-extern playerCharData playerCharTable[NUM_OF_PLAYER_CHARS];
 
 Player *player_create(fixed8 xPos, fixed8 yPos, playerState state, playerCharacter character, struct SpriteListNode **sprNode);
 void player_routine(Player *player, Camera *camera, const Stage *stage);

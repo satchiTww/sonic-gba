@@ -19,15 +19,11 @@
         "limits": "c",
         "new": "c",
         "testzonelvllayout.h": "c",
-<<<<<<< Updated upstream
-        "testzonebg0.h": "c"
-=======
         "testzonebg0.h": "c",
         "typeinfo": "c",
         "level_layout.h": "c",
         "assets.h": "c",
         "sprites.h": "c",
         "backgrounds.h": "c"
->>>>>>> Stashed changes
     }
 }
