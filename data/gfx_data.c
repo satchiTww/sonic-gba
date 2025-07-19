@@ -23,6 +23,11 @@ IMPORT_BIN_TO_ROM("data/bin/tiles/teto_push_0Tiles.bin", teto_push0Tiles);
 IMPORT_BIN_TO_ROM("data/bin/tiles/teto_push_1Tiles.bin", teto_push1Tiles);
 IMPORT_BIN_TO_ROM("data/bin/tiles/teto_push_2Tiles.bin", teto_push2Tiles);
 IMPORT_BIN_TO_ROM("data/bin/tiles/teto_push_3Tiles.bin", teto_push3Tiles);
+IMPORT_BIN_TO_ROM("data/bin/tiles/teto_roll_0Tiles.bin", teto_roll0Tiles);
+IMPORT_BIN_TO_ROM("data/bin/tiles/teto_roll_1Tiles.bin", teto_roll1Tiles);
+IMPORT_BIN_TO_ROM("data/bin/tiles/teto_roll_2Tiles.bin", teto_roll2Tiles);
+IMPORT_BIN_TO_ROM("data/bin/tiles/teto_roll_3Tiles.bin", teto_roll3Tiles);
+IMPORT_BIN_TO_ROM("data/bin/tiles/teto_roll_4Tiles.bin", teto_roll4Tiles);
 
 IMPORT_BIN_TO_ROM("data/bin/tiles/background_0.img.bin", bg0Tiles);
 IMPORT_BIN_TO_ROM("data/bin/tiles/testzone_layout.img.bin", test_zone_layoutTiles);

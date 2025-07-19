@@ -25,6 +25,11 @@ DEFINE_BIN16(teto_push0Tiles);
 DEFINE_BIN16(teto_push1Tiles);
 DEFINE_BIN16(teto_push2Tiles);
 DEFINE_BIN16(teto_push3Tiles);
+DEFINE_BIN16(teto_roll0Tiles);
+DEFINE_BIN16(teto_roll1Tiles);
+DEFINE_BIN16(teto_roll2Tiles);
+DEFINE_BIN16(teto_roll3Tiles);
+DEFINE_BIN16(teto_roll4Tiles);
 
 
 #endif

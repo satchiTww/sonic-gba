@@ -2,6 +2,7 @@
 #define MATH_FUNC_H
 
 #include "gba_typedefs.h"
+#include <stdlib.h>
 
 typedef s32 fixed8;
 
@@ -29,15 +30,24 @@ INLINE s32 mf_sign(s32 a)
 INLINE s32 fixed8_to_int(fixed8 x)
 {    return (x >> 8);    }
 
-extern fixed8 sine_table[];
-extern u8 angle_table[];
+extern const fixed8 sine_table[];
 
-INLINE fixed8 angle_sin(u8 angle)
+INLINE fixed8 angle_get_sin(u8 angle)
 {    return sine_table[angle % 256];    }
 
-INLINE fixed8 angle_cos(u8 angle)
+INLINE fixed8 angle_get_cos(u8 angle)
 {    return sine_table[(angle + 64) % 256];    }
 
-u8 angle_direction(int xDist, int yDist);
+INLINE void angle_calc_sine(u8 angle, fixed8 *sin, fixed8 *cos)
+{
+    if (sin != NULL) {
+        *sin = sine_table[angle % 256];
+    }
+    if (cos != NULL) {
+        *cos = sine_table[(angle + 64) % 256];
+    }
+}
+
+u8 angle_get(int xDist, int yDist);
 
 #endif

@@ -10,11 +10,6 @@ IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_walk_4ObjShapes.bin", teto_walk4ObjS
 IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_walk_5ObjShapes.bin", teto_walk5ObjShapes);
 IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_walk_6ObjShapes.bin", teto_walk6ObjShapes);
 IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_walk_7ObjShapes.bin", teto_walk7ObjShapes);
-IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_run_0ObjShapes.bin", teto_run_0ObjShapes);
-IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_run_1ObjShapes.bin", teto_run_1ObjShapes);
-IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_run_2ObjShapes.bin", teto_run_2ObjShapes);
-IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_run_3ObjShapes.bin", teto_run_3ObjShapes);
-IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_push_0ObjShapes.bin", teto_push_0ObjShapes);
-IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_push_1ObjShapes.bin", teto_push_1ObjShapes);
-IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_push_2ObjShapes.bin", teto_push_2ObjShapes);
-IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_push_3ObjShapes.bin", teto_push_3ObjShapes);
+IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_runObjShapes.bin", teto_runObjShapes);
+IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_pushObjShapes.bin", teto_pushObjShapes);
+IMPORT_BIN_TO_ROM("data/bin/obj_shapes/teto_rollObjShapes.bin", teto_rollObjShapes);

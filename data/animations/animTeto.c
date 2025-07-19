@@ -18,17 +18,28 @@ static const AnimSpriteFrame walkFrames[] = {
 };
 
 static const AnimSpriteFrame runFrames[] = {
-    { teto_run_0ObjShapes, (u32)_sizeof_teto_run_0ObjShapes, teto_run0Tiles, (u32)_sizeof_teto_run0Tiles, -2, 0, 0},
-    { teto_run_1ObjShapes, (u32)_sizeof_teto_run_1ObjShapes, teto_run1Tiles, (u32)_sizeof_teto_run1Tiles, -2, 0, 0},
-    { teto_run_2ObjShapes, (u32)_sizeof_teto_run_2ObjShapes, teto_run2Tiles, (u32)_sizeof_teto_run2Tiles, -2, 0, 0},
-    { teto_run_3ObjShapes, (u32)_sizeof_teto_run_3ObjShapes, teto_run3Tiles, (u32)_sizeof_teto_run3Tiles, -2, 0, 0},
+    { teto_runObjShapes, (u32)_sizeof_teto_runObjShapes, teto_run0Tiles, (u32)_sizeof_teto_run0Tiles, -2, 0, 0},
+    { teto_runObjShapes, (u32)_sizeof_teto_runObjShapes, teto_run1Tiles, (u32)_sizeof_teto_run1Tiles, -2, 0, 0},
+    { teto_runObjShapes, (u32)_sizeof_teto_runObjShapes, teto_run2Tiles, (u32)_sizeof_teto_run2Tiles, -2, 0, 0},
+    { teto_runObjShapes, (u32)_sizeof_teto_runObjShapes, teto_run3Tiles, (u32)_sizeof_teto_run3Tiles, -2, 0, 0},
 };
 
 static const AnimSpriteFrame pushFrames[] = {
-    { teto_push_0ObjShapes, (u32)_sizeof_teto_push_0ObjShapes, teto_push0Tiles, (u32)_sizeof_teto_push0Tiles, -5, -4, 0},
-    { teto_push_1ObjShapes, (u32)_sizeof_teto_push_1ObjShapes, teto_push1Tiles, (u32)_sizeof_teto_push1Tiles, -5, -4, 0},
-    { teto_push_2ObjShapes, (u32)_sizeof_teto_push_2ObjShapes, teto_push2Tiles, (u32)_sizeof_teto_push2Tiles, -5, -4, 0},
-    { teto_push_3ObjShapes, (u32)_sizeof_teto_push_3ObjShapes, teto_push3Tiles, (u32)_sizeof_teto_push3Tiles, -5, -4, 0},
+    { teto_pushObjShapes, (u32)_sizeof_teto_pushObjShapes, teto_push0Tiles, (u32)_sizeof_teto_push0Tiles, -5, -4, 0},
+    { teto_pushObjShapes, (u32)_sizeof_teto_pushObjShapes, teto_push1Tiles, (u32)_sizeof_teto_push1Tiles, -5, -4, 0},
+    { teto_pushObjShapes, (u32)_sizeof_teto_pushObjShapes, teto_push2Tiles, (u32)_sizeof_teto_push2Tiles, -5, -4, 0},
+    { teto_pushObjShapes, (u32)_sizeof_teto_pushObjShapes, teto_push3Tiles, (u32)_sizeof_teto_push3Tiles, -5, -4, 0},
+};
+
+static const AnimSpriteFrame rollFrames[] = {
+    {teto_rollObjShapes, (u32)_sizeof_teto_rollObjShapes, teto_roll0Tiles, (u32)_sizeof_teto_roll0Tiles, 0, 0, 0},
+    {teto_rollObjShapes, (u32)_sizeof_teto_rollObjShapes, teto_roll4Tiles, (u32)_sizeof_teto_roll4Tiles, 0, 0, 0},
+    {teto_rollObjShapes, (u32)_sizeof_teto_rollObjShapes, teto_roll1Tiles, (u32)_sizeof_teto_roll1Tiles, 0, 0, 0},
+    {teto_rollObjShapes, (u32)_sizeof_teto_rollObjShapes, teto_roll4Tiles, (u32)_sizeof_teto_roll4Tiles, 0, 0, 0},
+    {teto_rollObjShapes, (u32)_sizeof_teto_rollObjShapes, teto_roll2Tiles, (u32)_sizeof_teto_roll2Tiles, 0, 0, 0},
+    {teto_rollObjShapes, (u32)_sizeof_teto_rollObjShapes, teto_roll4Tiles, (u32)_sizeof_teto_roll4Tiles, 0, 0, 0},
+    {teto_rollObjShapes, (u32)_sizeof_teto_rollObjShapes, teto_roll3Tiles, (u32)_sizeof_teto_roll3Tiles, 0, 0, 0},
+    {teto_rollObjShapes, (u32)_sizeof_teto_rollObjShapes, teto_roll4Tiles, (u32)_sizeof_teto_roll4Tiles, 0, 0, 0},
 };
 
 AnimatedSprite animTeto[NUM_OF_PLAYER_ANIM] = {
@@ -36,4 +47,5 @@ AnimatedSprite animTeto[NUM_OF_PLAYER_ANIM] = {
     [ANIM_WALK] = {TRUE, 8, (AnimSpriteFrame*)walkFrames},
     [ANIM_RUN] = {TRUE, 4, (AnimSpriteFrame*)runFrames},
     [ANIM_PUSH] = {TRUE, 4, (AnimSpriteFrame*)pushFrames},
+    [ANIM_ROLL] = {TRUE, 8, (AnimSpriteFrame*)rollFrames},
 };
