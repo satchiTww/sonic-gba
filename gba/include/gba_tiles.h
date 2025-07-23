@@ -21,7 +21,9 @@ typedef u16 SCREENBLOCK[1024];
 #define SCREENBLOCK_MEM ((SCREENBLOCK*)VRAM)
 
 void tiles_load(const u16* tile_data, int data_lenght, int char_block, int tile_index);
+void tiles_clear(int char_block, int tile_index, int count);
 void tiles_load_tilemap(const u16* tilemap_data, int data_lenght, int scrn_block);
+void tiles_map_clear(int scrn_block, int count);
 void tiles_tilemap_scroll(const u16* data, int scrn_block, int map_tiles_width, int xGrid, int yGrid);
 
 #endif

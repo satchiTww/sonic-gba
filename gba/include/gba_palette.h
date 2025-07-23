@@ -9,6 +9,8 @@
 #define PAL_OAM_INDEX 256
 
 void palette_load(const u16* pal_data, int data_lenght, int pal_index);
+void palette_clear(int pal_index, int pal_lenght);
+
 
 INLINE void palette_set_color(int pal_index, COLOR target_color)
 {

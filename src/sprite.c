@@ -7,16 +7,14 @@
   the index defined in "objShapeIndex"*/
 static OBJ_ATTR sprite_get_object(const Sprite *sprite, u32 objShapeIndex);
 
-Sprite *sprite_create(
+Sprite *sprite_init(
     struct SpriteListNode **spriteNode,
     u16 xPos,
     u16 yPos,
     u16 tileID,
     u16 palNum,
     u8 bgPriority,
-    u8 spritePriority,
-    u8 numOfObjs,
-    ObjShape *objShape
+    u8 spritePriority
 )
 {
     Sprite *spr = malloc(sizeof(Sprite));
@@ -26,17 +24,20 @@ Sprite *sprite_create(
     spr->xOffset = 0;
     spr->yOffset = 0;
     spr->currentAnim = NULL;
+    spr->aff = (SpriteAffParam){0, 0, 0, 0};
     spr->animTimer = 0;
     spr->animIndex = 0;
     spr->isActive = TRUE;
+    spr->affineID = 0;
+    spr->isAffine = FALSE;
     spr->hFlip = FALSE;
     spr->vFlip = FALSE;
     spr->tileID = tileID;
     spr->paletteNum = palNum;
     spr->bgPriority = bgPriority;
     spr->spritePriority = spritePriority;
-    spr->numOfObjs = numOfObjs;
-    spr->objShape = objShape;
+    spr->numOfObjs = 1;
+    spr->objShape = &(ObjShape){0, 0, 0, 0};
 
     *spriteNode = sprite_add_to_list(*spriteNode, spr);
 
@@ -116,10 +117,23 @@ void sprite_add_list_to_oam_buffer(struct SpriteListNode *head)
         
         if (currSprite->isActive) {
             for (u32 j = 0; j < currSprite->numOfObjs; j++) {
-                
+
                 OBJ_ATTR obj = sprite_get_object(currSprite, j);
-                
-                oam_buffer[objCount++] = obj;
+
+                oam_buffer[objCount] = obj;
+
+                if (currSprite->isAffine) {
+
+                    obj_set_aff_attr(
+                        &oam_aff_buffer[currSprite->affineID],
+                        currSprite->aff.pa,
+                        currSprite->aff.pb,
+                        currSprite->aff.pc,
+                        currSprite->aff.pd
+                    );
+                }
+
+                objCount++;
             }
         }
 
@@ -138,7 +152,7 @@ void sprite_render_animation(Sprite *sprite, u32 duration)
     sprite_load_obj_shape(
         sprite,
         currFrame.ObjShapeData,
-        currFrame.ObjShapeDataLenght / 8
+        currFrame.ObjShapeDataLenght >> 3
     );
 
     tiles_load(
@@ -163,13 +177,15 @@ OBJ_ATTR sprite_get_object(const Sprite *sprite, u32 objShapeIndex)
 
     u16 attr0 =
         ATTR0_YPOS(sprite->yPos + sprite->yOffset - objOffY) +
-        ATTR0_SHAPE((objShape.format & 0xC) >> 2)
+        ATTR0_SHAPE((objShape.format & 0xC) >> 2) +
+        (sprite->isAffine * ATTR0_AFF)
     ;
 
     u16 attr1 =
         ATTR1_XPOS(sprite->xPos + sprite->xOffset - objOffX) +
-        ATTR1_FLIP(sprite->hFlip | (sprite->vFlip << 1) ) +
-        ATTR1_SIZE(objShape.format & 0x3)
+        ATTR1_FLIP(sprite->hFlip | (sprite->vFlip << 1) ) * (!sprite->isAffine) +
+        ATTR1_SIZE(objShape.format & 0x3) +
+        ATTR1_AFF_ID(sprite->affineID) //todo: things
     ;
     
     u16 attr2 =

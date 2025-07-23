@@ -7,9 +7,9 @@
 
 /*========DMA_CNT BITS============*/
 //type of increment dest
-#define DMA_DST_RELOAD 0x00018000
+#define DMA_DST_RELOAD 0x00300000
 //type of increment src
-#define DMA_SRC_FIXED  0x00040000
+#define DMA_SRC_FIXED  0x01000000
 //others
 #define DMA_REPEAT     0x02000000
 #define DMA_CPY16      0x00000000

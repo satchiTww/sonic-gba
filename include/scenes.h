@@ -10,6 +10,7 @@ typedef struct {
 #define MAX_SCENES 32 //temp value
 
 extern Scene testRoom;
+extern Scene spriteRoom;
 
 void scene_add(Scene *scene);
 void scenes_handle(void);

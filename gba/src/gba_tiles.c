@@ -3,12 +3,22 @@
 
 void tiles_load(const u16* tile_data, int data_lenght, int char_block, int tile_index)
 {
-    dma3_cpy(&TILE_MEM[char_block][tile_index], tile_data, data_lenght / 4, DMA_CPY32);
+    dma3_cpy(&TILE_MEM[char_block][tile_index], tile_data, data_lenght >> 2, DMA_CPY32);
+}
+
+void tiles_clear(int char_block, int tile_index, int count)
+{
+    dma3_fill(&TILE_MEM[tile_index], 0, count >> 1, DMA_CPY16);
 }
 
 void tiles_load_tilemap(const u16* tilemap_data, int data_lenght, int scrn_block)
 {
-    dma3_cpy(&SCREENBLOCK_MEM[scrn_block], tilemap_data, data_lenght / 4, DMA_CPY32);
+    dma3_cpy(&SCREENBLOCK_MEM[scrn_block], tilemap_data, data_lenght >> 2, DMA_CPY32);
+}
+
+void tiles_map_clear(int scrn_block, int count)
+{
+    dma3_fill(&SCREENBLOCK_MEM[scrn_block], 0, count, DMA_CPY16);
 }
 
 /*This is made specifically for loading and scrolling though big levels

@@ -64,6 +64,7 @@ typedef struct {
     fixed8 jumpForce;
 
     //anim flags
+    u32 isJumping:1;
     u32 isPushing:1;
     u32 isBall:1;
     

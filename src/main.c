@@ -37,6 +37,7 @@ static void scenes_setup(void)
 {
     //adds all scenes that will be used in the game
     scene_add(&testRoom);
+    scene_add(&spriteRoom);
 
     //loads the first scene that will be used when the game is initialized
     scene_set_next(&testRoom);

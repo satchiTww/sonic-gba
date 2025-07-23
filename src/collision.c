@@ -5,7 +5,7 @@ INLINE int get_tile_height(int x, const TileInfo *tileInfo, const u8 *heightData
     int heightIndex = tileInfo->isHflip ? (COLLISION_TILE_SIZE - 1) - x % COLLISION_TILE_SIZE : x % COLLISION_TILE_SIZE;
     int height = heightData[tileInfo->tileIndex * COLLISION_TILE_SIZE + heightIndex];
 
-    if (tileInfo->isVflip) height = -height;
+    //if (tileInfo->isVflip) height = -height;
 
     return height;
 }
@@ -15,7 +15,7 @@ INLINE int get_tile_width(int y, const TileInfo *tileInfo, const u8 *widthData)
     int widthIndex = tileInfo->isVflip ? (COLLISION_TILE_SIZE - 1) - y % COLLISION_TILE_SIZE : y % COLLISION_TILE_SIZE;
     int width = widthData[tileInfo->tileIndex * COLLISION_TILE_SIZE + widthIndex];
 
-    if (tileInfo->isHflip) width = -width;
+    //if (tileInfo->isHflip) width = -width;
 
     return width;
 }
@@ -24,8 +24,8 @@ INLINE u8 get_tile_angle(const TileInfo *tileInfo, const u8 *angleData)
 {
     u8 angle = angleData[tileInfo->tileIndex];
 
-    if (tileInfo->isVflip) angle  = (-(angle + 64)) - 64;
-    if (tileInfo->isHflip) angle  = ~angle;
+    if (tileInfo->isHflip) angle  = ~angle + 1;
+    if (tileInfo->isVflip) angle  = (~(angle + 64)+1) - 64;
 
     return angle;
 }
@@ -42,8 +42,6 @@ SolidTile find_v_tile2(int x, int y, const Stage *stage, CollisionFloorDir dir)
 
     height = get_tile_height(x, &tile, stage->collisionHeightData);
     angle = get_tile_angle(&tile, stage->collisionAngleData);
-
-    if (dir < 0) angle = (-(angle + 64)) - 64;
 
     if (height > 0) {
         int tileSurface = dir > 0 ? COLLISION_TILE_SIZE - (height + y % COLLISION_TILE_SIZE) : y % COLLISION_TILE_SIZE - height;
@@ -69,8 +67,6 @@ SolidTile collision_find_vertical_tile(int x, int y, const Stage *stage, Collisi
 
     height = get_tile_height(x, &tile, stage->collisionHeightData);
     angle = get_tile_angle(&tile, stage->collisionAngleData);
-
-    if (dir < 0) angle = (-(angle + 64)) - 64;
 
     if (height > 0) //height found is between 1 and 16
     {
@@ -107,8 +103,6 @@ SolidTile find_h_tile2(int x, int y, const Stage *stage, CollisionWallDir dir)
     width = get_tile_width(y, &tile, stage->collisionWidthData);
     angle = get_tile_angle(&tile, stage->collisionAngleData);
 
-    if (dir < 0) angle = ~angle;
-
     if (width > 0) {
         int tileSurface = dir > 0 ? COLLISION_TILE_SIZE - (width + x % COLLISION_TILE_SIZE) : x % COLLISION_TILE_SIZE - width;
         
@@ -134,8 +128,6 @@ SolidTile collision_find_horizontal_tile(int x, int y, const Stage *stage, Colli
     
     width = get_tile_width(y, &tile, stage->collisionWidthData);
     angle = get_tile_angle(&tile, stage->collisionAngleData);
-
-    if (dir < 0) angle = ~angle;
 
     if (width > 0)
     {
@@ -168,8 +160,8 @@ TileInfo collision_get_tile_info(int gridX, int gridY, const Stage *stage)
 
     u16 tileEntry   = stage->collisionMapData[gridY * (stage->mapWidth/COLLISION_TILE_SIZE) + gridX];
     u16 tileIndex   = tileEntry & TILE_INDEX_MASK;
-    u8 isHflip      = (tileEntry & TILE_HFLIP_MASK) != 0;
-    u8 isVflip      = (tileEntry & TILE_VFLIP_MASK) != 0;
+    u8 isHflip      = ((tileEntry & TILE_HFLIP_MASK) != 0);
+    u8 isVflip      = ((tileEntry & TILE_VFLIP_MASK) != 0);
 
     tileInfo.tileIndex = tileIndex;
     tileInfo.isHflip   = isHflip;

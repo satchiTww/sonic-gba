@@ -82,16 +82,24 @@ static void test_room_update(void)
     move_bg1();
     move_bg0();
 
+    if (key_is_down(KEY_B)) {
+        scene_set_next(&spriteRoom);
+    }
+
+
     sprite_add_list_to_oam_buffer(spriteNode);
     obj_update_oam();
 }
 
 static void test_room_leave(void)
 {
+    obj_clear_oam_buffer();
+    obj_update_oam();
+    palette_clear(0, 512);
+    tiles_clear(0, 0, 3070);
     camera_destroy(camera);
     player_destroy(player);
 }
-
 
 
 static void move_bg0(void)

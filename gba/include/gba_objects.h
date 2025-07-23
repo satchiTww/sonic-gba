@@ -28,6 +28,7 @@ typedef struct {
 #define OAM_MEM ((OBJ_ATTR*)OAM)
 
 extern OBJ_ATTR oam_buffer[OAM_MAX_ENTRIES];
+extern OBJ_AFFINE *oam_aff_buffer;
 
 extern u8 obj_width_lookup[16];
 extern u8 obj_height_lookup[16];
@@ -88,6 +89,16 @@ INLINE OBJ_ATTR *obj_set_attributes(OBJ_ATTR *obj, u16 attr0, u16 attr1, u16 att
     obj->attr0 = attr0;
     obj->attr1 = attr1;
     obj->attr2 = attr2;
+
+    return obj;
+}
+
+INLINE OBJ_AFFINE *obj_set_aff_attr(OBJ_AFFINE *obj, s16 pa, s16 pb, s16 pc, s16 pd)
+{
+    obj->pa = pa;
+    obj->pb = pb;
+    obj->pc = pc;
+    obj->pd = pd;
 
     return obj;
 }

@@ -24,6 +24,9 @@
         "level_layout.h": "c",
         "assets.h": "c",
         "sprites.h": "c",
-        "backgrounds.h": "c"
+        "backgrounds.h": "c",
+        "math_func.h": "c",
+        "bg_data.h": "c",
+        "sprite_data.h": "c"
     }
 }
