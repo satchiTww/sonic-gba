@@ -24,7 +24,7 @@ void tiles_map_clear(int scrn_block, int count)
 /*This is made specifically for loading and scrolling though big levels
  because the gba can only load a max of 1024x1024 background at once.
  In practice, this is the same method used by the Sonic Advance trilogy.
- There's definitely more efficient methods out there, but I think this one will work fine*/
+ There's definitely more efficient methods out there, but I think this one will work fine :P*/
 void tiles_tilemap_scroll(const u16* data, int scrn_block, int map_tiles_width, int xGrid, int yGrid)
 {
     int horiz_scroll_size = 31;
